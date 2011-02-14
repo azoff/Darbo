@@ -1,5 +1,5 @@
 import settings
-import json
+import simplejson
 
 class JsonResponse():
     
@@ -7,16 +7,17 @@ class JsonResponse():
         self._callback = request.get(settings.JSONP_CALLBACK_PARAM)
         self._response = response
         
-    def encodeAndSend(self, data):
-        json = json.dumps(data)
-        self.send(json)
+    def encodeAndSend(self, data, status=200):
+        json = simplejson.dumps(data)
+        self.send(json, status)
         
-    def send(self, json):
-        if self._callback not '':
+    def send(self, json, status=200):
+        self._response.set_status(status)
+        if self._callback is not '':
             json = "%s(%s);" % (self._callback, json)
-            self.response.headers['Content-Type'] = 'application/javascript'
+            self._response.headers['Content-Type'] = 'application/javascript'
         else:
-            self.response.headers['Content-Type'] = 'application/json'
-        self.response.out.write(json) 
+            self._response.headers['Content-Type'] = 'application/json'
+        self._response.out.write(json) 
         
         

@@ -1,5 +1,5 @@
 import settings
-import json
+import simplejson
 import logging
 import md5
 from copy import copy
@@ -22,7 +22,7 @@ class Chatroom():
         self._messages.insert(0, message)
      
     def asLiteral(self):
-        return { 'id': self._id, 'messages': self._messages }
+        return { 'id': self._id, 'messages': [ msg.asLiteral() for msg in self._messages ] }
         
     def asJson(self):
-        return json.dumps(self.asLiteral())
+        return simplejson.dumps(self.asLiteral())

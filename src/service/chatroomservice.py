@@ -1,29 +1,52 @@
-import settings
-from google.appengine.api import memcache
+import settings, hashlib, logging
+from google.appengine.api import memcache, taskqueue
+from google.appengine.ext import db
 
-from src.model import Chatroom
+from src.model import Chatroom, ChatroomFromJson
 from src.dao import ChatroomDao
 
-def _fromJson(json):
-    literal = json.loads(json)
-    return Chatroom(literal.id, literal.messages)
-        
 def _newId(seed):
-    return md5.new(seed).hexdigest()
+    return hashlib.md5(seed).hexdigest()
+    
+def _cacheKey(id):
+    return ("Chatroom.%s" % id)
     
 def getIdFromRequest(request):
     return request.get(settings.CHATROOM_ID_PARAM, _newId(request.referrer))
     
 def getChatroom(id):
-    chatroom = memcache.get(id)
+    chatroom = memcache.get(_cacheKey(id))
     if chatroom is None:
-        chatroomDao = db.Query(ChatroomDao).filter('id =', id).get()
-        if chatroomDao is not None:
-            chatroom = _fromJson(chatroomDao.json)
+        chatroom = getChatroomFromDb(id)
+        if chatroom is not None:
+            cacheChatroom(chatroom)
     else:
-        chatroom = _fromJson(chatroom)
+        chatroom = ChatroomFromJson(chatroom)
+    return chatroom
+   
+def getChatroomFromDb(id):
+    chatroomDao = ChatroomDao.get_by_key_name(id)
+    chatroom = None
+    if chatroomDao is not None:
+        chatroom = ChatroomFromJson(chatroomDao.json)
     return chatroom
     
+def cacheChatroom(chatroom):
+    memcache.set(_cacheKey(chatroom.getId()), chatroom.asJson(), settings.CHATROOM_CACHE_WINDOW)
+
+def enqueueSave(id, msgJson):
+    taskqueue.add(url='/save', params={ 
+        settings.CHATROOM_ID_PARAM: id,
+        settings.CHAT_MESSAGE_PARAM: msgJson,
+    }, transactional=True)
+    
+def enqueueTransactionalSave(id, msgJson):
+    db.run_in_transaction(enqueueSave, id, msgJson)
+    
 def saveChatroom(chatroom):
-    memcache.set(id, chatroom.asJson(), settings.CHATROOM_CACHE_WINDOW)
-    ChatroomDao(id=chatroom.getId(), json=chatroom.asJson()).put()
+    chatroomDao = ChatroomDao.get_by_key_name(chatroom.getId())
+    if chatroomDao is None:
+        chatroomDao = ChatroomDao(key_name=chatroom.getId(), json=chatroom.asJson())
+    else:
+        chatroomDao.json = chatroom.asJson()
+    chatroomDao.put()
