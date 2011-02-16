@@ -9,6 +9,10 @@ handlers:
   script: src/main.py
 
 - url: /load
+  static_files: static/js/loader.min.js
+  upload: static/.*
+  
+- url: /load_debug
   static_files: static/js/loader.js
   upload: static/.*
 

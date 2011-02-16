@@ -17,6 +17,11 @@
      * The relative path to the join handler
      */
     JOIN_PATH = '/join',
+    
+    /**
+     * The matching expression for the api domain
+     */
+    API_DOMAIN_REGX = /^(.+?)\/load[_$]/,
 
     /**
      * Useful JS shortcuts and tools
@@ -107,7 +112,7 @@
                 darbo.loadGoogleApi(domain, 
                     // laod the chatroom information
                     utils.wrap(darbo.joinChatroom, domain, room, 
-                        // open a channel to the chatroom
+                        // open a channel to the chatroommate .git
                         utils.wrap(darbo.openChannel)
                     )
                 );
@@ -117,7 +122,7 @@
         },
         
         getApiDomain: function(script) {
-            var domain = script.getAttribute('src').match(/^(.+?)\/load$/),
+            var domain = script.getAttribute('src').match(API_DOMAIN_REGX),
                 loc = w.location;
             if (domain && domain.length >= 2) {
                 return domain[1];
