@@ -4,5 +4,18 @@ runtime: python
 api_version: 1
 
 handlers:
-- url: .*
+
+- url: /(join|save|talk)
   script: src/main.py
+
+- url: /load
+  static_files: static/js/loader.js
+  upload: static/.*
+
+- url: /static/(.*)
+  static_files: static/\1
+  upload: static/.*
+  
+- url: /.*
+  static_files: static/html/index.html
+  upload: static/.*
