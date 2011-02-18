@@ -7,7 +7,7 @@ from talkhandler import TalkHandler
 from savehandler import SaveHandler
 
 WsgiChatApp = webapp.WSGIApplication([
-    ('/join', JoinHandler),
-    ('/talk', TalkHandler),
-    ('/save', SaveHandler)
+    ('/api/join', JoinHandler),
+    ('/api/talk', TalkHandler),
+    ('/api/save', SaveHandler)
 ], debug=settings.IS_DEV_MODE)

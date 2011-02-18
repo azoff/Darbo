@@ -9,15 +9,17 @@ class JoinHandler(webapp.RequestHandler):
         id = chatroomservice.getIdFromRequest(self.request)
         response = JsonResponse(self.request, self.response)
         if id is not None:        
-            token = channelservice.createToken(id)    
+            token, recipientCount = channelservice.createToken(id)    
             if token is not None:
                 chatroom = chatroomservice.getChatroom(id)
                 if chatroom is None:
                     chatroom = Chatroom(id)
-                    chatroomservice.saveChatroom(chatroom) # synchronous save on chatroom
+					# synchronous save on chatroom
+                    chatroomservice.saveChatroom(chatroom)
                 response.encodeAndSend({
                     'token': token,
-                    'chatroom': chatroom.asLiteral()
+                    'chatroom': chatroom.asLiteral(),
+					'recipientCount': recipientCount
                 })
             else:
                 response.encodeAndSend({'error': 'error creating token'}, status=500)

@@ -12,11 +12,26 @@
      * The relative path to the google-provided channel API
      */
     JSAPI_PATH = '/_ah/channel/jsapi',
+
+    /**
+     * The URL for jquery
+     */    
+    JQUERY_URL = 'https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js',
     
     /**
      * The relative path to the join handler
      */
-    JOIN_PATH = '/join',
+    JOIN_PATH = '/api/join?callback=?',
+    
+    /**
+     * The relative path to the theme handler
+     */
+    THEME_PATH = '/theme/',
+    
+    /**
+     * The default theme of the chat widget
+     */
+    DEFULAT_THEME = 'cupertino',
     
     /**
      * The matching expression for the api domain
@@ -36,63 +51,12 @@
             }
         },
         
-        loadScript: function(src, onload, args) {
-            var script = d.createElement('script');
-            script.onload = function(){ 
-                onload.apply(script, args);
-            };
-            script.src = src;
-            d.body.appendChild(script);
-        },
-        
-        toQueryString: function(args) {
-            var querystring = [];
-            utils.each(args, function(value, key){
-                value = encodeURIComponent(key) + "=" + encodeURIComponent(value);
-                querystring.push(value);
-            });
-            return querystring.join("&");
-        },
-        
-        each: function(iterable, onEach) {
-            for (var key in iterable) {
-                onEach.call(iterable, iterable[key], key);
-            }
-        },
-        
         wrap: function(fn, args) {
-            args = [].slice.call(arguments, 1);
+            var a = [].slice;
+            args = a.call(arguments, 1);
             return function() {
-                fn.apply(fn, args.concat(arguments));
+                fn.apply(fn, args.concat(a.call(arguments)));
             };
-        },
-        
-        parseJson: function(json) {
-            if (w.JSON) {
-                return JSON.parse(json);
-            } else {
-                return eval('(' + json + ')');
-            }
-        },
-        
-        jsonRequest: function(url, args, callback) {
-            var request, response, onStateChange = function(){
-                if (request.readyState === 4 && request.status == 200) {
-                    response = request.responseText;
-                    callback.call(null, utils.parseJson(response));
-                }
-            };
-            if(args) {
-                url += "?" + utils.toQueryString(args);
-            }   
-            if (window.XMLHttpRequest) {
-                request = new XMLHttpRequest();
-            } else if (window.ActiveXObject) {
-                request = new ActiveXObject("Microsoft.XMLHTTP");
-            }
-            request.onreadystatechange = onStateChange;
-            request.open("GET", url, true);
-            request.send(null);
         }
 
     },
@@ -105,15 +69,17 @@
         load: function() {
             var 
             script = d.getElementById(SCRIPT_ID),
-            domain = darbo.getApiDomain(script),
-            room   = darbo.getRoomId(script);
+            domain = darbo.getApiDomain(script);
             if (script) {
-                // load the google channel API
-                darbo.loadGoogleApi(domain, 
-                    // laod the chatroom information
-                    utils.wrap(darbo.joinChatroom, domain, room, 
-                        // open a channel to the chatroommate .git
-                        utils.wrap(darbo.openChannel)
+                // load jQuery
+                darbo.loadJQuery(
+                    // load the google API
+                    utils.wrap(darbo.loadGoogleApi, domain, 
+                        // load the chatroom information
+                        utils.wrap(darbo.createChatroom, script, domain, 
+                            // open the listen and talk channels
+                            darbo.openChannels
+                        )
                     )
                 );
             } else {
@@ -131,26 +97,81 @@
             }
         },
         
-        getRoomId: function(script) {
-            return script.getAttribute('room');
+        loadJQuery: function(callback) {
+            if (w.jQuery) {
+                callback.call();
+            } else {
+                var script = d.createElement('script');
+                script.onload = callback;
+                script.src = JQUERY_URL;
+                d.body.appendChild(script);
+            }
         },
         
         loadGoogleApi: function(domain, callback) {
             var src = domain + JSAPI_PATH;
-            utils.loadScript(src, callback);
+            w.jQuery.getScript(src, callback);
         },
         
-        joinChatroom: function(domain, room, callback) {
+        loadWidgetCss: function(domain, theme) {
+            w.jQuery("<link/>", {
+                href: (domain + THEME_PATH + theme),
+                rel: 'stylesheet',
+                type: 'text/css',
+                media: 'screen'
+            }).appendTo("head");
+        },
+        
+        createChatroom: function(script, domain, callback) {
+            var $cript = w.jQuery(script),
+                room = $cript.attr("room"),
+                theme = $cript.attr("theme") || DEFULAT_THEME,
+                widget = darbo.createChatWidget(script);
+            darbo.loadWidgetCss(domain, theme);
+            darbo.joinChatroom(widget, domain, room, callback);
+        },
+        
+        createChatWidget: function(script) {
+            var 
+            widget  = w.jQuery("<div/>").addClass("darbo-widget"),
+            topbar  = w.jQuery("<div/>").addClass("darbo-bar").appendTo(widget),
+            chatbox = w.jQuery("<ul/>").addClass("darbo-chatbox").appendTo(widget),
+            botbar  = w.jQuery("<div/>").addClass("darbo-bar").appendTo(widget);
+            widget.insertAfter(script);
+            widget.addMsg = darbo.getMsgAdder(chatbox);
+            w.jQuery(script).remove();
+            return widget;
+        },
+        
+        getMsgAdder: function(chatbox) {
+            return function(msg, time) {
+                time = time || "fast";
+                var chat = w.jQuery("<li/>").addClass("darbo-chat").hide(0),
+                    alias = w.jQuery("<div/>").text(msg.alias)
+                            .addClass("darbo-alias").appendTo(chat),
+                    message = w.jQuery("<div/>").text(msg.message)
+                            .addClass("darbo-message").appendTo(chat);
+                chatbox.append(chat.slideUp(time));
+            };
+        },
+        
+        joinChatroom: function(widget, domain, room, callback) {
             var url = domain + JOIN_PATH,
             args = room ? {room: room} : {};
-            utils.jsonRequest(url, args, callback);
+            w.jQuery.getJSON(url, args, utils.wrap(callback, widget));
         },
         
-        openChannel: function(chatroom) {
-            if (!chatroom.error) {
-                console.log(chatroom);
+        loadMessages: function(widget, messages) {
+            w.jQuery.each(messages, function(i, message){
+               widget.addMsg(message, 0);
+            });
+        },
+        
+        openChannels: function(widget, status) {
+            if (!status.error) {
+                darbo.loadMessages(widget, status.chatroom.messages);
             } else {
-                utils.error("error joining chatroom: " + chatroom.error);
+                utils.error("error joining chatroom: " + status.error);
             }
         }
         

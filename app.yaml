@@ -5,21 +5,25 @@ api_version: 1
 
 handlers:
 
-- url: /(join|save|talk)
+- url: /api/.*
   script: src/main.py
 
 - url: /load
   static_files: static/js/loader.min.js
-  upload: static/.*
+  upload: /static/
   
 - url: /load_debug
   static_files: static/js/loader.js
-  upload: static/.*
+  upload: /static/
+  
+- url: /theme/(.*)
+  static_files: static/css/widget-\1.css
+  upload: /static/
 
 - url: /static/(.*)
   static_files: static/\1
-  upload: static/.*
+  upload: /static/
   
 - url: /.*
   static_files: static/html/index.html
-  upload: static/.*
+  upload: /static/

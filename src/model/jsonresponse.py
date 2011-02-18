@@ -1,5 +1,5 @@
 import settings
-import simplejson
+from django.utils import simplejson
 
 class JsonResponse():
     

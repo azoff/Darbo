@@ -1,4 +1,5 @@
-import simplejson, logging
+import logging
+from django.utils import simplejson
 from jsonresponse import JsonResponse
 from chatroom import Chatroom
 from message import Message

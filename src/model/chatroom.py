@@ -1,7 +1,7 @@
 import settings
-import simplejson
 import logging
 import md5
+from django.utils import simplejson
 from copy import copy
 
 class Chatroom():
