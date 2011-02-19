@@ -269,7 +269,7 @@
         loadMessages: function(widget, messages) {
             messages = messages.sort(darbo.compareMessages);
             w.jQuery.each(messages, function(i, message){
-               widget.addMessage(message, 0);
+               widget.addMessage(message);
             });
         }
         
@@ -325,10 +325,9 @@
         this.replaceScript = function(script) {
             script.replaceWith(this._element);
         };
-        this.addMessage = function(status, interval) {
-            interval = interval || "fast";
+        this.addMessage = function(status) {
             var chat = this.createChat(status);
-            this._chatbox.append(chat.slideUp(interval));
+            this._chatbox.append(chat);
         };
         this.getAliasHandler = function(script) {
             var widget = this;
