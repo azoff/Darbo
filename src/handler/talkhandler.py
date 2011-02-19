@@ -25,7 +25,7 @@ class TalkHandler(webapp.RequestHandler):
 					chatroomservice.enqueueTransactionalSave(id, msg)
 					response.encodeAndSend(msg.asLiteral())
 				else:
-					response.encodeAndSend({'error': "invalid or expired token"}, status=401)
+					response.encodeAndSend({'error': "invalid or expired token", 'expired': True}, status=401)
 			else:
 				response.encodeAndSend({'error': "missing required token parameter"}, status=401)
 		else:

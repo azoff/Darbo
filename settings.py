@@ -22,7 +22,7 @@ SESSION_CACHE_WINDOW = 7200
 JSONP_CALLBACK_PARAM = "callback"
 
 # the parameter to include for chat messages
-CHAT_MESSAGE_PARAM = "msg"
+CHAT_MESSAGE_PARAM = "message"
 
 # the parameter to include for naming yourself
 CHAT_ALIAS_PARAM = "alias"
