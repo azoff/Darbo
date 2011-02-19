@@ -62,7 +62,7 @@ def sendMessage(id, msgToken, msg):
 				count += 1
 		msg.setRecipientCount(count)
 		for token in sessions.keys():
-			if msgToken is not token:
+			if msgToken != token:
 				channel.send_message(sessions[token]['session'], msg.asJson())
 		_cacheSessions(key, sessions)
 	return msg

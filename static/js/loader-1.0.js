@@ -33,15 +33,10 @@
     },
     
     /**
-     * The relative path to the join handler
+     * The relative path to the API namespace
      */
-    JOIN_PATH = '/api/join?callback=?',
-    
-    /**
-     * The relative path to the talk handler
-     */
-    TALK_PATH = '/api/talk?callback=?',
-    
+    API_NAMESPACE = '/api/',
+  
     /**
      * The relative path to the theme handler
      */
@@ -136,7 +131,10 @@
                         // join the chatrom 
                         utils.wrap(darbo.joinChatroom,
                             // initialize the widget with the data
-                            darbo.initializeWidget
+                            utils.wrap(darbo.initializeWidget,
+                                // open up the listener channel
+                                darbo.openChannel
+                            )
                         )
                     )
                 );
@@ -175,13 +173,18 @@
                 });
         },
         
-        getArgs: function(extraArgs) {
+        getApiArgs: function(extraArgs) {
             return w.jQuery.extend({v: VERSION}, extraArgs);
         },
         
+        getApiUrl: function(domain, action, jsonp) {
+            jsonp = jsonp ? "?callback=?" : "?";
+            return domain + API_NAMESPACE + action + jsonp;
+        },
+        
         joinChatroom: function(room, domain, widget, callback) {
-            var url = domain + JOIN_PATH, user = new User(),
-                args = darbo.getArgs({room:room,token:user.getToken()});
+            var url = darbo.getApiUrl(domain, "join"), user = new User(),
+                args = darbo.getApiArgs({room:room,token:user.getToken()});
             w.jQuery.getJSON(url, args, function(status) {
                 if (!status.error) {
                     user.setToken(status.token).save();
@@ -194,12 +197,57 @@
         
         initializeWidget: function(domain, widget, chatroom, callback) {
             darbo.loadMessages(widget, chatroom.messages);
-            widget.setTalkHandler(darbo.getTalkHandler(domain, chatroom.id));
+            widget.setTalkHandler(darbo.getTalkHandler(chatroom.id, domain));
+            callback(chatroom.id, domain, widget);
         },
         
-        getTalkHandler: function(domain, id) {
-            var url = domain + TALK_PATH,
-                args = darbo.getArgs({room:id});
+        openChannel: function(id, domain, widget, refreshed) {
+            var token = (new User()).getToken(), 
+            socket = new w.goog.appengine.Channel(token);
+            socket.open({
+                onopen: w.jQuery.noop,
+                onmessage: darbo.getMesaageReciever(widget),
+                onerror: darbo.getChannelErrorHandler(id, domain, widget, refreshed),
+                onclose: w.jQuery.noop
+            });
+            w.jQuery(w).bind("beforeunload unload",
+                utils.wrap(darbo.onWindowClose, socket, id, domain));
+        },
+        
+        onWindowClose: function(event, socket, id, domain) {
+            var url = darbo.getApiUrl(domain, "leave", false), user = new User(),
+                args = darbo.getApiArgs({room:id,token:user.getToken()}),
+                img = new Image(1,1); 
+            img.src = url + w.jQuery.param(args);
+            if (socket.close) { socket.close(); }
+        },
+        
+        getChannelErrorHandler: function(id, domain, widget, refreshed) {
+            return function(error){
+                // refresh the token if there is a socket error
+                if (!refreshed) {
+                    darbo.refreshToken(id, domain, function(){
+                        darbo.openChannel(id, domain, widget, true);
+                    });
+                }
+                utils.error(error);
+            };
+        },
+        
+        refreshToken: function(id, domain, callback) {
+            darbo.joinChatroom(id, domain, null, callback);
+        },
+        
+        getMesaageReciever: function(widget) {
+            return function(response) {
+                var msg = w.JSON.parse(response.data);
+                widget.addMessage(msg);
+            };
+        },
+        
+        getTalkHandler: function(id, domain) {
+            var url = darbo.getApiUrl(domain, "talk"),
+                args = darbo.getApiArgs({room:id});
             return function(message, callback) {
                 var user = new User(), callee = arguments.callee;
                 args.token = user.getToken();
@@ -209,8 +257,7 @@
                     if (!status.error) {
                         callback(status);
                     } else if (status.expired) {
-                        // get a new token
-                        darbo.joinChatroom(id, domain, null, function(){
+                        darbo.refreshToken(id, domain, function(){
                             callee(message, callback);
                         });
                     } else {
@@ -222,7 +269,7 @@
         
         getTemplate: function(domain, locale, callback) {
             var url = domain + TEMPLATE_PATH + locale,
-                args = darbo.getArgs(),
+                args = darbo.getApiArgs(),
                 key = TEMPLATE_KEY + locale + "-" + VERSION;
             if (utils.hasProperty(w.localStorage, key)) {
                 callback(w.localStorage[key]);
@@ -281,7 +328,7 @@
      */
     User = darbo.User = function(meta) {
         if(utils.hasProperty(w.localStorage, USER_KEY)) {
-            this._meta = JSON.parse(
+            this._meta = w.JSON.parse(
                 w.localStorage[USER_KEY]
             );
         } else {
@@ -302,7 +349,7 @@
             return this;
         };
         this.save = function() {
-            w.localStorage[USER_KEY] = JSON.stringify(this._meta);
+            w.localStorage[USER_KEY] = w.JSON.stringify(this._meta);
         };
     },
     
