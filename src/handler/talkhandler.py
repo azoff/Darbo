@@ -12,13 +12,21 @@ class TalkHandler(webapp.RequestHandler):
 		chatroom = chatroomservice.getChatroom(id)
 		response = JsonResponse(self.request, self.response)
 		if chatroom is not None:
-			text = self.request.get(settings.CHAT_MESSAGE_PARAM, "")
-			alias = self.request.get(settings.CHAT_ALIAS_PARAM, settings.DEFAULT_CHAT_ALIAS)
-			msg = Message(alias, text)
-			chatroom.addMessage(msg)
-			chatroomservice.cacheChatroom(chatroom)
-			chatroomservice.enqueueTransactionalSave(id, msg.asJson())
-			channelservice.sendMessage(id, msg)
-			response.encodeAndSend(msg)
+			token = channelservice.getTokenFromRequest(self.request)
+			if token is not None:
+				if channelservice.isValidToken(id, token):
+					text = self.request.get(settings.CHAT_MESSAGE_PARAM, "")
+					alias = self.request.get(settings.CHAT_ALIAS_PARAM, settings.DEFAULT_CHAT_ALIAS)
+					msg = Message(alias, text)
+					# TODO: make this a job, it might stall the service to have this synchronous
+					channelservice.sendMessage(id, token, msg)
+					chatroom.addMessage(msg)
+					chatroomservice.cacheChatroom(chatroom)
+					chatroomservice.enqueueTransactionalSave(id, msg)
+					response.encodeAndSend(msg.asLiteral())
+				else:
+					response.encodeAndSend({'error': "invalid or expired token"}, status=401)
+			else:
+				response.encodeAndSend({'error': "missing required token parameter"}, status=401)
 		else:
 			response.encodeAndSend({'error': "chatroom does not exist"}, status=404)

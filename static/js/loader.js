@@ -9,14 +9,19 @@
     SCRIPT_ID = 'darbo',
     
     /**
-     * The relative path to the google-provided channel API
+     * The local storage key for loading/saving the current user
      */
-    JSAPI_PATH = '/_ah/channel/jsapi',
-
+    USER_KEY = 'darbo-user',
+    
     /**
-     * The URL for jquery
-     */    
-    JQUERY_URL = 'https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js',
+     * The external dependencies needed to make the app run
+     */
+    EXTERNS = {
+        '/_ah/channel/jsapi': 'goog.appengine.Channel',
+        '/static/js/jquery-1.5.min.js': 'jQuery',
+        '/static/js/local-storage.min.js': 'localStorage',
+        '/static/js/json2.min.js': 'JSON'
+    },
     
     /**
      * The relative path to the join handler
@@ -57,6 +62,37 @@
             return function() {
                 fn.apply(fn, args.concat(a.call(arguments)));
             };
+        },
+        
+        hasProperty: function(obj, key) {
+            try {
+                return (key in obj) && obj[key] !== null;
+            } catch(e) {
+                return false;
+            }
+        },
+        
+        getProperty: function(obj, key, def) {
+            return utils.hasProperty(obj, key) ? obj[key] : def;
+        },
+        
+        hasExtern: function(extern, parent) {
+            parent = parent || w;
+            extern = extern.split('.', 1);
+            if (extern.length > 1) {
+                return utils.hasProperty(parent, extern[0]) && 
+                    utils.hasExtern(extern[1], parent[extern[0]]);
+            } else {
+                return utils.hasProperty(parent, extern[0]);
+            }
+        },
+         
+        loadScript: function(src, callback) {
+            var script = d.createElement('script');
+            script.onload = callback;
+            script.src = src;
+            script.async = true;
+            d.body.appendChild(script);
         }
 
     },
@@ -71,15 +107,11 @@
             script = d.getElementById(SCRIPT_ID),
             domain = darbo.getApiDomain(script);
             if (script) {
-                // load jQuery
-                darbo.loadJQuery(
-                    // load the google API
-                    utils.wrap(darbo.loadGoogleApi, domain, 
-                        // load the chatroom information
-                        utils.wrap(darbo.createChatroom, script, domain, 
-                            // open the listen and talk channels
-                            darbo.openChannels
-                        )
+                // load external dependencies
+                darbo.loadExterns(domain,
+                    utils.wrap(darbo.createChatroom, script, domain, 
+                        // open the listen and talk channels
+                        darbo.openChannels
                     )
                 );
             } else {
@@ -97,20 +129,20 @@
             }
         },
         
-        loadJQuery: function(callback) {
-            if (w.jQuery) {
-                callback.call();
-            } else {
-                var script = d.createElement('script');
-                script.onload = callback;
-                script.src = JQUERY_URL;
-                d.body.appendChild(script);
+        loadExterns: function(domain, callback) {
+            var count = 0, extern, onload = function() {
+                if (--count <= 0) { callback.call(); }
+            };
+            for (extern in EXTERNS) {
+                if (!utils.hasExtern(EXTERNS[extern])) {
+                    count++;
+                    utils.loadScript(extern, onload);
+                }
             }
-        },
-        
-        loadGoogleApi: function(domain, callback) {
-            var src = domain + JSAPI_PATH;
-            w.jQuery.getScript(src, callback);
+            if (count <= 0) {
+                callback.call();
+            }
+            
         },
         
         loadWidgetCss: function(domain, theme) {
@@ -157,7 +189,13 @@
         
         joinChatroom: function(widget, domain, room, callback) {
             var url = domain + JOIN_PATH,
-            args = room ? {room: room} : {};
+                user = User.getCurrent(),
+                args = {};
+            if (room) {
+                args.room = room;
+            } if (user.getToken()) {
+                args.token = user.getToken();
+            }
             w.jQuery.getJSON(url, args, utils.wrap(callback, widget));
         },
         
@@ -168,16 +206,56 @@
         },
         
         openChannels: function(widget, status) {
+            var user = User.getCurrent();
             if (!status.error) {
                 darbo.loadMessages(widget, status.chatroom.messages);
+                user.setToken(status.token);
+                user.save();
             } else {
                 utils.error("error joining chatroom: " + status.error);
             }
         }
         
+    },
+    
+    /**
+     * A light class to encapsulate user data
+     */
+    User = darbo.User = function(meta) {
+        this._meta = meta || {};
     };
     
+    User.getCurrent = function() {
+        if (!utils.hasProperty(User, '_current')) {
+            if(utils.hasProperty(w.localStorage, USER_KEY)) {
+                User._current = new User(JSON.parse(
+                    w.localStorage[USER_KEY]
+                ));
+            } else {
+                User._current = new User();
+            }
+        }
+        return User._current;
+    };
     
+    User.prototype = {
+        getToken: function() {
+            return utils.getProperty(this._meta, 'token');
+        },
+        setToken: function(token) {
+            this._meta.token = token;
+        },
+        getAlias: function() {
+            return utils.getProperty(this.meta, 'alias');
+        },
+        setAlias: function(alias) {
+            this._meta.alias = alias;
+        },
+        save: function() {
+            w.localStorage[USER_KEY] = JSON.stringify(this._meta);
+        }
+    };
+     
     w.onload = darbo.load;
     
 })(window, document);

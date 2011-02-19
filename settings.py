@@ -9,6 +9,9 @@ MESSAGE_WINDOW = 50
 # the id parameter used to override IDs
 CHATROOM_ID_PARAM = "room"
 
+# the token parameter used to validify requests
+TOKEN_PARAM = "token"
+
 # how long chatrooms are cached
 CHATROOM_CACHE_WINDOW = 86400
 

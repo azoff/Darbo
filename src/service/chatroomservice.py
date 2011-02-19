@@ -40,8 +40,8 @@ def enqueueSave(id, msgJson):
         settings.CHAT_MESSAGE_PARAM: msgJson,
     }, transactional=True)
     
-def enqueueTransactionalSave(id, msgJson):
-    db.run_in_transaction(enqueueSave, id, msgJson)
+def enqueueTransactionalSave(id, msg):
+    db.run_in_transaction(enqueueSave, id, msg.asJson())
     
 def saveChatroom(chatroom):
     chatroomDao = ChatroomDao.get_by_key_name(chatroom.getId())
