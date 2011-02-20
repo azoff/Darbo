@@ -1,81 +1,100 @@
-import settings, uuid, time, logging, hashlib
+import settings, logging
+from time import time
 from django.utils import simplejson
 from google.appengine.api import memcache, channel
-
-from src.model import Chatroom
-from src.dao import ChatroomDao
+from src.model import Chatroom, Session, SessionFromLiteral
 
 def _cacheKey(id):
     return ("Channels.%s" % id)
     
-def _createChannel(id, sessions):
-	seed = "%s.%s" % (id, uuid.uuid4())
-	session = hashlib.md5(seed).hexdigest()
-	token = channel.create_channel(session)
-	sessions[token] = { 'created': time.time(), 'session': session }
-	return token
+def _createSession(id): 
+	session = Session()
+	session.setKeyBySeed(id)
+	return session
 
-def _getSessions(key):
+def _getSessions(id):
+	key = _cacheKey(id)
 	sessions = memcache.get(key)
+	active = 0
 	if sessions is None:
 		sessions = {}
 	else:
 		sessions = simplejson.loads(sessions)
-	return sessions;
+		current = time()
+		# prune out expired tokens when converting
+		for token in sessions.keys():
+			session = SessionFromLiteral(sessions[token])
+			elapsed = current - session.getCreated()
+			if elapsed >= settings.SESSION_CACHE_WINDOW:
+				del sessions[token]
+			else:
+				sessions[token] = session
+				if session.isActive():
+					active += 1
+				
+	return sessions, active;
 	
-def _cacheSessions(key, sessions):
+def _setSessions(id, sessions):
+	key = _cacheKey(id)
+	for token in sessions.keys():
+		sessions[token] = sessions[token].asLiteral()
 	memcache.set(key, simplejson.dumps(sessions), settings.SESSION_CACHE_WINDOW)
-	
-def createToken(id):
-	#TODO: Eventually use a secret to verify the integrity of the token
-	token = None
-	try:
-		key = _cacheKey(id)
-		sessions = _getSessions(key)
-		token = _createChannel(id, sessions);
-		recipientCount = len(sessions.keys())
-		memcache.set(key, simplejson.dumps(sessions), settings.SESSION_CACHE_WINDOW)
-	except:
-		logging.error("Error generating session token!")
-	return (token, recipientCount)
 	
 def getTokenFromRequest(request):
 	return request.get(settings.TOKEN_PARAM, None)
 	
-def isValidToken(id, token):
-	key = _cacheKey(id)
-	sessions = _getSessions(key)
-	return (token in sessions)
+def createToken(id):
+	#TODO: Eventually use a secret to verify the integrity of the token
+	sessions, active = _getSessions(id)
+	newSession = _createSession(id)
+	token = channel.create_channel(newSession.getKey())
+	sessions[token] = newSession
+	_setSessions(id, sessions)
+	return (token, active+1)
+	
+def isValidToken(id, token, active=False):
+	sessions, count = _getSessions(id)
+	valid = (token is not None) and (token in sessions)
+	if active:
+		active = valid and sessions[token].isActive()
+		return valid and active
+	else:
+		return valid
     
-def sendMessage(id, msgToken, msg):
-	key = _cacheKey(id)
-	sessions = _getSessions(key)
-	if len(sessions.keys()) > 0:
-		current = time.time()
-		count = 0
-		# do a prune first
-		for token in sessions.keys():
-			elapsed = current - sessions[token]['created']
-			if elapsed >= settings.SESSION_CACHE_WINDOW:
-				del sessions[token]
-			else:
-				count += 1
-		msg.setRecipientCount(count)
-		for token in sessions.keys():
-			if msgToken != token:
-				channel.send_message(sessions[token]['session'], msg.asJson())
-		_cacheSessions(key, sessions)
+def sendMessage(id, userToken, msg):
+	sessions, active = _getSessions(id)
+	msg = {'msg':msg.asLiteral(),'active':active}
+	msgJson = simplejson.dumps(msg)
+	for token in sessions.keys():
+		if userToken != token:
+			sessionKey = sessions[token].getKey()
+			channel.send_message(sessionKey, msgJson)
+	_setSessions(id, sessions)
 	return msg
 	
-def getRecipientCount(id):
-	key = _cacheKey(id)
-	sessions = _getSessions(key)
-	return len(sessions.keys())
+def countActiveTokens(id):
+	sessions, active = _getSessions(id)
+	return active
 	
-def reclaimToken(id, token):
-	key = _cacheKey(id)
-	sessions = _getSessions(key)
+def getSession(id, token):
+	sessions, active = _getSessions(id)
 	if token in sessions:
-		del sessions[token]
-	_cacheSessions(key, sessions)
-	return len(sessions.keys())                
+		return sessions[token]
+	else:
+		return None;
+	
+def deactivateToken(id, token):
+	sessions, active = _getSessions(id)
+	if token in sessions and sessions[token].isActive():
+		active -= 1
+		sessions[token].setActive(False)
+	_setSessions(id, sessions)
+	return active
+	
+def activateToken(id, token):
+	sessions, active = _getSessions(id)
+	if token in sessions and not sessions[token].isActive():
+		active += 1
+		sessions[token].setActive(True)
+	_setSessions(id, sessions)
+	return active

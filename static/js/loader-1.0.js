@@ -240,8 +240,8 @@
         
         getMesaageReciever: function(widget) {
             return function(response) {
-                var msg = w.JSON.parse(response.data);
-                widget.addMessage(msg);
+                var status = w.JSON.parse(response.data);
+                widget.addMessage(status.msg);
             };
         },
         
@@ -255,7 +255,7 @@
                 args.message = message;
                 w.jQuery.getJSON(url, args, function(status) {
                     if (!status.error) {
-                        callback(status);
+                        callback(status.msg);
                     } else if (status.expired) {
                         darbo.refreshToken(id, domain, function(){
                             callee(message, callback);

@@ -2,7 +2,7 @@ import settings, hashlib, logging
 from google.appengine.api import memcache, taskqueue
 from google.appengine.ext import db
 
-from src.model import Chatroom, ChatroomFromJson
+from src.model import Chatroom, Message, ChatroomFromJson
 from src.dao import ChatroomDao
 
 def _newId(seed):
@@ -14,6 +14,11 @@ def _cacheKey(id):
 def getIdFromRequest(request):
     return request.get(settings.CHATROOM_ID_PARAM, _newId(request.referrer))
     
+def getMessageFromRequest(request):
+	message = request.get(settings.CHAT_MESSAGE_PARAM, "")
+	alias = request.get(settings.CHAT_ALIAS_PARAM, settings.DEFAULT_CHAT_ALIAS)
+	return Message(alias, message)
+
 def getChatroom(id):
     chatroom = memcache.get(_cacheKey(id))
     if chatroom is None:

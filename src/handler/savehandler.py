@@ -16,7 +16,7 @@ class SaveHandler(webapp.RequestHandler):
                 msg = MessageFromJson(msg)
                 chatroom.addMessage(msg)
                 chatroomservice.saveChatroom(chatroom)
-                response.encodeAndSend({'status':'success'})
+                response.encodeAndSend(chatroom.asLiteral())
             else:
                 response.encodeAndSend({'error': "no message to add"}, status=500)
         else:

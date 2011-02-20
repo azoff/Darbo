@@ -8,22 +8,22 @@ class JoinHandler(webapp.RequestHandler):
 	def get(self):
 		id = chatroomservice.getIdFromRequest(self.request)
 		token = channelservice.getTokenFromRequest(self.request)
-		recipientCount = 0
+		active = 0
 		response = JsonResponse(self.request, self.response)
 		if id is not None:        
 			chatroom = chatroomservice.getChatroom(id)
 			if chatroom is None:
 				chatroom = Chatroom(id)
-				# synchronous save on chatroom
-				chatroomservice.saveChatroom(chatroom)
-			if token is None or not channelservice.isValidToken(id, token):
-				token, recipientCount = channelservice.createToken(id)
+				chatroomservice.saveChatroom(chatroom) # synchronous save on chatroom
+			logging.info(channelservice.isValidToken(id, token))
+			if channelservice.isValidToken(id, token):
+				active = channelservice.activateToken(id, token)
 			else:
-				recipientCount = channelservice.getRecipientCount(id)
+				token, active = channelservice.createToken(id)
 			response.encodeAndSend({
 				'token': token,
 				'chatroom': chatroom.asLiteral(),
-				'recipientCount': recipientCount
+				'active': active
 			})
 		else:
 			response.encodeAndSend({'error': 'no referrer detected, and no id provided'}, status=500)

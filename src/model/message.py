@@ -4,10 +4,9 @@ from time import time
 
 class Message():
 	
-	def __init__(self, alias, message, created = None, recipientCount = 0):
+	def __init__(self, alias, message, created = None):
 		self._alias = alias
 		self._message = message
-		self._recipientCount = recipientCount
 		if created is None:
 			self._created = time()
 		else:
@@ -19,12 +18,6 @@ class Message():
 	def getMessage(self):
 		return self._message
 	
-	def getRecipientCount(self):
-		return self._recipientCount
-	
-	def setRecipientCount(self, recipientCount):
-		self._recipientCount = recipientCount
-	
 	def getCreatedTimestamp(self):
 		return self._created
 	
@@ -32,8 +25,7 @@ class Message():
 		return {
 			'alias': self._alias,
 			'message': self._message,
-			'created': self._created,
-			'recipientCount': self._recipientCount
+			'created': self._created
 		}
 	
 	def asJson(self):
