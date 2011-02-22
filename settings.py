@@ -12,6 +12,9 @@ CHATROOM_ID_PARAM = "room"
 # the token parameter used to validify requests
 TOKEN_PARAM = "token"
 
+# the name of the chatroom
+CHATROOM_NAME_PARAM = "name"
+
 # how long chatrooms are cached
 CHATROOM_CACHE_WINDOW = 86400
 

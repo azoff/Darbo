@@ -12,14 +12,19 @@ class JoinHandler(webapp.RequestHandler):
 		response = JsonResponse(self.request, self.response)
 		if id is not None:        
 			chatroom = chatroomservice.getChatroom(id)
+			name = chatroomservice.getNameFromRequest(self.request)
+			persist = False
 			if chatroom is None:
-				chatroom = Chatroom(id)
-				chatroomservice.saveChatroom(chatroom) # synchronous save on chatroom
-			logging.info("%d messages" % len(chatroom.getMessages()))
+				chatroom = Chatroom(id, name)
+				chatroomservice.cacheAndEnqueueSave(chatroom)
+			elif len(name) > 0 and (name != chatroom.getName()):
+				chatroom.setName(name)
+				chatroomservice.cacheAndEnqueueSave(chatroom)
 			if channelservice.isValidToken(id, token):
 				participants = channelservice.activateToken(id, token)
 			else:
 				token, participants = channelservice.createToken(id)
+			channelservice.updateParticipantCount(id, token)
 			response.encodeAndSend({
 				'token': token,
 				'chatroom': chatroom.asLiteral(),

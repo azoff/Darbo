@@ -13,6 +13,12 @@ def _cacheKey(id):
     
 def getIdFromRequest(request):
     return request.get(settings.CHATROOM_ID_PARAM, _newId(request.referrer))
+
+def getNameFromRequest(request):
+	return request.get(settings.CHATROOM_NAME_PARAM, "")
+	
+def getChatroomFromRequest(request):
+	return ChatroomFromJson(request.get('chatroom'))
     
 def getMessageFromRequest(request):
 	message = request.get(settings.CHAT_MESSAGE_PARAM, "").strip()
@@ -38,17 +44,20 @@ def getChatroomFromDb(id):
         chatroom = ChatroomFromJson(chatroomDao.json)
     return chatroom
     
+def cacheAndEnqueueSave(chatroom):
+	cacheChatroom(chatroom)
+	enqueueTransactionalSave(chatroom)
+
 def cacheChatroom(chatroom):
     memcache.set(_cacheKey(chatroom.getId()), chatroom.asJson(), settings.CHATROOM_CACHE_WINDOW)
 
-def enqueueSave(id, msgJson):
+def enqueueSave(chatroom):
     taskqueue.add(url='/save', params={ 
-        settings.CHATROOM_ID_PARAM: id,
-        settings.CHAT_MESSAGE_PARAM: msgJson,
+        'chatroom': chatroom.asJson()
     }, transactional=True)
     
-def enqueueTransactionalSave(id, msg):
-    db.run_in_transaction(enqueueSave, id, msg.asJson())
+def enqueueTransactionalSave(chatroom):
+    db.run_in_transaction(enqueueSave, chatroom)
     
 def saveChatroom(chatroom):
     chatroomDao = ChatroomDao.get_by_key_name(chatroom.getId())

@@ -6,18 +6,11 @@ from src.model import Chatroom, Message, JsonResponse, MessageFromJson
 
 class SaveHandler(webapp.RequestHandler):
     
-    def post(self):
-        id = chatroomservice.getIdFromRequest(self.request)
-        chatroom = chatroomservice.getChatroomFromDb(id)
-        response = JsonResponse(self.request, self.response)
-        if chatroom is not None:
-            msg = self.request.get(settings.CHAT_MESSAGE_PARAM)
-            if msg is not None:
-                msg = MessageFromJson(msg)
-                chatroom.addMessage(msg)
-                chatroomservice.saveChatroom(chatroom)
-                response.encodeAndSend(chatroom.asLiteral())
-            else:
-                response.encodeAndSend({'error': "no message to add"}, status=500)
-        else:
-            response.encodeAndSend({'error': "chatroom does not exist"}, status=404)
+	def post(self):
+		chatroom = chatroomservice.getChatroomFromRequest(self.request)
+		response = JsonResponse(self.request, self.response)
+		if chatroom is not None:
+			chatroomservice.saveChatroom(chatroom)
+			response.encodeAndSend(chatroom.asLiteral())
+		else:
+			response.encodeAndSend({'error': "invalid chatroom"}, status=401)

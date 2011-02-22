@@ -19,8 +19,7 @@ class TalkHandler(webapp.RequestHandler):
 					# TODO: make this a job, it might stall the service to have this be synchronous
 					msgJson = channelservice.sendMessage(id, token, msg)
 					chatroom.addMessage(msg)
-					chatroomservice.cacheChatroom(chatroom)
-					chatroomservice.enqueueTransactionalSave(id, msg)
+					chatroomservice.cacheAndEnqueueSave(chatroom)
 					response.encodeAndSend(msgJson)
 				else:
 					response.encodeAndSend({'error': "invalid or expired token", 'expired': True}, status=401)

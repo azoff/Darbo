@@ -167,7 +167,6 @@
         
         createWidget: function(script, domain, callback) {
             var $cript  = w.jQuery(script),
-                room    = $cript.attr("room"),
                 width   = $cript.attr("width"),
                 height  = $cript.attr("height"),
                 theme   = $cript.attr("theme") || DEFULAT_THEME,
@@ -176,7 +175,7 @@
                 darbo.getTemplate(domain, locale, function(template){
                     var widget = new Widget(width, height, domain, template);
                     widget.replaceScript($cript);
-                    callback(room, domain, widget);
+                    callback($cript, domain, widget);
                 });
         },
         
@@ -189,24 +188,26 @@
             return domain + API_NAMESPACE + action + jsonp;
         },
         
-        joinChatroom: function(room, domain, widget, callback) {
-            var url = darbo.getApiUrl(domain, "join"), user = new User(),
-                args = darbo.getApiArgs({room:room,token:user.getToken()});
+        joinChatroom: function(script, domain, widget, callback) {
+            var room = script.attr("room"), name = script.attr("name"),
+                url = darbo.getApiUrl(domain, "join"), user = new User(),
+                args = darbo.getApiArgs({token:user.getToken()});
+                if (room) { args.room = room; }
+                if (name) { args.name = name; }
             w.jQuery.getJSON(url, args, function(status) {
                 if (!status.error) {
                     user.setToken(status.token).save();
-                    callback(domain, widget, status.chatroom);
+                    callback(domain, widget, status);
                 } else {
                     utils.error("error joining chatroom: " + status.error);
                 }
             });
         },
         
-        initializeWidget: function(domain, widget, chatroom, callback) {
-            darbo.loadMessages(widget, chatroom.messages);
-            widget.setTalkHandler(darbo.getTalkHandler(chatroom.id, domain));
-            widget.setRoomId(chatroom.id);
-            callback(chatroom.id, domain, widget);
+        initializeWidget: function(domain, widget, status, callback) {
+            widget.setTalkHandler(darbo.getTalkHandler(status.chatroom.id, domain));
+            widget.applyChatroomData(status);
+            callback(status.chatroom.id, domain, widget);
         },
         
         openChannel: function(id, domain, widget, refreshed) {
@@ -249,7 +250,10 @@
         getMesaageReciever: function(widget) {
             return function(response) {
                 var status = w.JSON.parse(response.data);
-                widget.addMessage(status.msg, {animate:true});
+                widget.setParticipants(status.participants);
+                if (status.msg) {
+                    widget.addMessage(status.msg, {animate:true});
+                }
             };
         },
         
@@ -319,16 +323,7 @@
             } else {
                 return 1;
             }
-        },
-        
-        loadMessages: function(widget, messages) {
-            messages = messages.sort(darbo.compareMessages);
-            w.jQuery.each(messages, function(i, message){
-               widget.addMessage(message);
-            });
-            widget.scrollToBottom();
         }
-        
         
     },
     
@@ -372,13 +367,18 @@
             if(width) { this._element.css("width", width); }
             if(height) { this._element.css("height", height); }
             this._chatbox = this._element.find(".darbo-chatbox").scroll(this.getScrollHandler());
+            this._meta = this._element.find(".darbo-meta");
+            this._participants = this._meta.find(".darbo-meta-particiant-count");
+            this._name = this._meta.find(".darbo-meta-name");
             this._logo = this._element.find(".darbo-logo").attr({href:domain});
-            this._composeAlias = this._element.find(".darbo-compose-alias").keyup(this.getAliasHandler());
+            this._status = this._element.find(".darbo-status");
+            this._composeAlias = this._status.find(".darbo-compose-alias").keyup(this.getAliasHandler());
             if(alias) { this._composeAlias.val(alias); }
             this._form = this._element.find(".darbo-form").submit(this.getSendHandler());            
             this._composeMessage = this._form.find(".darbo-compose-message");
-            this._chatTemplate = this._chatbox.find(".darbo-chat-template").removeClass("darbo-chat-template").remove();
+            this._chatTemplate = this._chatbox.find(".darbo-chat").removeClass("darbo-hidden").remove();
             this.applyPlaceholders();
+            this.applyMetaListeners();
         };
         this.applyPlaceholders = function(form) {
             var active = d.activeElement, $ = w.jQuery;
@@ -392,8 +392,30 @@
                 }
             }).blur(); $(active).focus();
         };
-        this.setRoomId = function(id) {
-            this._element.attr("room", id);
+        this.applyMetaListeners = function() {
+            var meta = this._meta, 
+                hide = function() { meta.slideUp("fast"); },
+                show = function() { meta.slideDown("fast"); };
+            this._element.mouseenter(hide);
+            this._status.mouseenter(show);
+            this._element.mouseleave(show);
+            this._status.mouseleave(hide);
+        };
+        this.applyChatroomData = function(data) {
+            var messages = data.chatroom.messages.sort(darbo.compareMessages),
+                widget = this;
+            widget._element.attr("room", data.chatroom.id);
+            if (data.chatroom.name) {
+                widget._name.text(data.chatroom.name).parent().removeClass("darbo-hidden");
+            }
+            widget.setParticipants(data.participants);
+            w.jQuery.each(messages, function(i, message){
+               widget.addMessage(message);
+            });
+            widget.scrollToBottom();
+        };
+        this.setParticipants = function(participants) {
+            this._participants.text(participants-1); // -1 for current user
         };
         this.setTalkHandler = function(handler) {
             this._talkHandler = handler;

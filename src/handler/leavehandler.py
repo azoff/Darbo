@@ -11,6 +11,7 @@ class LeaveHandler(webapp.RequestHandler):
 		response = JsonResponse(self.request, self.response)
 		if token is not None:
 			participants = channelservice.deactivateToken(id, token)
+			channelservice.updateParticipantCount(id, token)
 			return response.encodeAndSend({'participants': participants});
 		else:
 			response.encodeAndSend({'error': 'missing token'}, status=401)

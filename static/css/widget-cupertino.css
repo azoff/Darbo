@@ -204,6 +204,26 @@
     border-bottom: solid 0.1em #CCCCCC;
 }
 
+.darbo-meta {
+    font-size: 80%;
+    line-height: 100%;
+    color: #666;
+    border-bottom: solid 0.1em #AAA;   
+    /* for non-css3 browsers */
+    background-color: #EFEFF0;
+    /* for IE */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#C5C7CB', endColorstr='#EFEFF0');
+    /* for webkit browsers */
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#C5C7CB), to(#EFEFF0)); 
+    /* for firefox 3.6+ */
+    background-image: -moz-linear-gradient(top,  #C5C7CB 0, #EFEFF0 100%);
+}
+
+.darbo-meta-name,
+.darbo-meta-participant-count {
+    color: #333;
+}
+
 .darbo-form {
     border: solid 0.1em #AAA;   
     border-top-color: #FEFEFE;

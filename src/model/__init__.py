@@ -13,7 +13,7 @@ def MessageFromLiteral(literal):
     
 def ChatroomFromJson(json):
     literal = simplejson.loads(json)
-    return Chatroom(literal['id'], [ MessageFromLiteral(msg) for msg in literal['messages'] ])
+    return Chatroom(literal['id'], literal['name'], [ MessageFromLiteral(msg) for msg in literal['messages'] ], literal['active'])
 
 def SessionFromLiteral(literal):
     return Session(literal['key'], literal['created'], literal['active'])

@@ -61,16 +61,21 @@ def isValidToken(id, token, active=False):
 	else:
 		return valid
     
-def sendMessage(id, userToken, msg):
+def updateParticipantCount(id, userToken):
+	sendMessage(id, userToken)
+
+def sendMessage(id, userToken, msg = None):
 	sessions, participants = _getSessions(id)
-	msg = {'msg':msg.asLiteral(),'participants':participants}
-	msgJson = simplejson.dumps(msg)
+	msgData = {'participants':participants}
+	if msg is not None:
+		msgData['msg'] = msg.asLiteral()
+	msgJson = simplejson.dumps(msgData)
 	for token in sessions.keys():
 		if userToken != token:
 			sessionKey = sessions[token].getKey()
 			channel.send_message(sessionKey, msgJson)
 	_setSessions(id, sessions)
-	return msg
+	return msgData
 	
 def countActiveTokens(id):
 	sessions, participants = _getSessions(id)
