@@ -15,8 +15,10 @@ def getIdFromRequest(request):
     return request.get(settings.CHATROOM_ID_PARAM, _newId(request.referrer))
     
 def getMessageFromRequest(request):
-	message = request.get(settings.CHAT_MESSAGE_PARAM, "")
-	alias = request.get(settings.CHAT_ALIAS_PARAM, settings.DEFAULT_CHAT_ALIAS)
+	message = request.get(settings.CHAT_MESSAGE_PARAM, "").strip()
+	alias = request.get(settings.CHAT_ALIAS_PARAM, "").strip()
+	if len(alias) == 0:
+		alias = settings.DEFAULT_CHAT_ALIAS
 	return Message(alias, message)
 
 def getChatroom(id):

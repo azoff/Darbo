@@ -23,6 +23,11 @@
     TEMPLATE_KEY = 'darbo-template-',
     
     /**
+     * Cache teh widget template in the browser
+     */
+    CLIENT_CACHE_TEMPLATE = false,
+    
+    /**
      * The external dependencies needed to make the app run
      */
     EXTERNS = {
@@ -162,12 +167,14 @@
         
         createWidget: function(script, domain, callback) {
             var $cript  = w.jQuery(script),
-                theme   = $cript.attr("theme") || DEFULAT_THEME,
                 room    = $cript.attr("room"),
+                width   = $cript.attr("width"),
+                height  = $cript.attr("height"),
+                theme   = $cript.attr("theme") || DEFULAT_THEME,
                 locale  = $cript.attr("locale") || DEFAULT_LOCALE;
                 darbo.loadWidgetCss(domain, theme);
                 darbo.getTemplate(domain, locale, function(template){
-                    var widget = new Widget(template);
+                    var widget = new Widget(width, height, domain, template);
                     widget.replaceScript($cript);
                     callback(room, domain, widget);
                 });
@@ -198,6 +205,7 @@
         initializeWidget: function(domain, widget, chatroom, callback) {
             darbo.loadMessages(widget, chatroom.messages);
             widget.setTalkHandler(darbo.getTalkHandler(chatroom.id, domain));
+            widget.setRoomId(chatroom.id);
             callback(chatroom.id, domain, widget);
         },
         
@@ -216,8 +224,8 @@
         
         onWindowClose: function(event, socket, id, domain) {
             var url = darbo.getApiUrl(domain, "leave", false), user = new User(),
-                args = darbo.getApiArgs({room:id,token:user.getToken()}),
-                img = new Image(1,1); 
+                date = new Date(), img = new Image(1,1),
+                args = darbo.getApiArgs({room:id,token:user.getToken(),d:date.getTime()}); 
             img.src = url + w.jQuery.param(args);
             if (socket.close) { socket.close(); }
         },
@@ -241,7 +249,7 @@
         getMesaageReciever: function(widget) {
             return function(response) {
                 var status = w.JSON.parse(response.data);
-                widget.addMessage(status.msg);
+                widget.addMessage(status.msg, {animate:true});
             };
         },
         
@@ -271,7 +279,7 @@
             var url = domain + TEMPLATE_PATH + locale,
                 args = darbo.getApiArgs(),
                 key = TEMPLATE_KEY + locale + "-" + VERSION;
-            if (utils.hasProperty(w.localStorage, key)) {
+            if (utils.hasProperty(w.localStorage, key) && CLIENT_CACHE_TEMPLATE) {
                 callback(w.localStorage[key]);
             } else {
                 w.jQuery.get(url, args, function(template){
@@ -318,6 +326,7 @@
             w.jQuery.each(messages, function(i, message){
                widget.addMessage(message);
             });
+            widget.scrollToBottom();
         }
         
         
@@ -356,15 +365,35 @@
     /**
      * A convenience class for widgets
      */
-    Widget = darbo.Widget = function(template) {
+    Widget = darbo.Widget = function(width, height, domain, template) {
         this.init = function(template) {
             var alias = (new User()).getAlias() || "";
             this._element = w.jQuery(template);
-            this._chatbox = this._element.find(".darbo-chatbox");
-            this._composeAlias = this._element.find(".darbo-compose-alias").keyup(this.getAliasHandler()).val(alias);
+            if(width) { this._element.css("width", width); }
+            if(height) { this._element.css("height", height); }
+            this._chatbox = this._element.find(".darbo-chatbox").scroll(this.getScrollHandler());
+            this._logo = this._element.find(".darbo-logo").attr({href:domain});
+            this._composeAlias = this._element.find(".darbo-compose-alias").keyup(this.getAliasHandler());
+            if(alias) { this._composeAlias.val(alias); }
             this._form = this._element.find(".darbo-form").submit(this.getSendHandler());            
             this._composeMessage = this._form.find(".darbo-compose-message");
-            this._chatTemplate = this._chatbox.find(".darbo-chat-template").removeClass("darbo-chat-template");
+            this._chatTemplate = this._chatbox.find(".darbo-chat-template").removeClass("darbo-chat-template").remove();
+            this.applyPlaceholders();
+        };
+        this.applyPlaceholders = function(form) {
+            var active = d.activeElement, $ = w.jQuery;
+            this._element.find('[placeholder]').focus(function (elm) {
+                elm = $(this); if (elm.attr('placeholder') != '' && elm.val() == elm.attr('placeholder')) {
+                    elm.val('').removeClass('darbo-placeholder');
+                }
+            }).blur(function (elm) {
+                elm = $(this); if (elm.attr('placeholder') != '' && (elm.val() == '' || elm.val() == elm.attr('placeholder'))) {
+                    elm.val(elm.attr('placeholder')).addClass('darbo-placeholder');
+                }
+            }).blur(); $(active).focus();
+        };
+        this.setRoomId = function(id) {
+            this._element.attr("room", id);
         };
         this.setTalkHandler = function(handler) {
             this._talkHandler = handler;
@@ -372,9 +401,30 @@
         this.replaceScript = function(script) {
             script.replaceWith(this._element);
         };
-        this.addMessage = function(status) {
-            var chat = this.createChat(status);
+        this.getScrollHandler = function() {
+            var widget = this;
+            return function() {
+                if (widget._scrolling) { clearTimeout(widget._scrolling); }
+                widget._scrolling = setTimeout(function(){
+                    widget._scrolling = null;
+                }, 100);
+            };
+        };
+        this.addMessage = function(status, options) {
+            options = options || {};
+            var chat = this.createChat(status, options);
+            if (options.animate) {
+                if (options.isUser || !this._scrolling) {
+                    this.scrollToBottom();
+                }
+            }
             this._chatbox.append(chat);
+        };
+        this.scrollToBottom = function() {
+            var box = this._chatbox.get(0);
+            this._chatbox.animate({
+                scrollTop: box.scrollHeight
+            }, "fast");
         };
         this.getAliasHandler = function(script) {
             var widget = this;
@@ -391,17 +441,27 @@
             return function(e) {
                 e.preventDefault();
                 if (utils.hasProperty(widget, '_talkHandler')) {
-                    widget._talkHandler(widget._composeMessage.val(), function(status) {
-                        widget.addMessage(status);
-                    });
+                    // clear placeholders
+                    if (!widget._composeMessage.hasClass("darbo-placeholder")
+                            && widget._composeMessage.val().length > 0) {
+                        widget._talkHandler(widget._composeMessage.val(), function(status) {
+                            if (status.error) {
+                                utils.error(status.error);                                
+                            } else {
+                                widget.addMessage(status, {isUser:true,animate:true});
+                                widget._composeMessage.val("");
+                            }
+                        });
+                    }   
                 }
                 return false;
             };
         };
-        this.createChat = function(status) {
+        this.createChat = function(status, options) {
             var chat = this._chatTemplate.clone();
+            if(options.isUser) { chat.addClass("darbo-user"); }
             chat.find('.darbo-alias').text(status.alias);
-            chat.find('.darbo-message').text(status.message);
+            chat.find('.darbo-message-content').text(status.message);
             return chat;
         };
         this.init(template);        

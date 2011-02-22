@@ -1,0 +1,46 @@
+.darbo-clearfix:after {
+	content: ".";
+	display: block;
+	clear: both;
+	visibility: hidden;
+	line-height: 0;
+	height: 0;
+}
+ 
+.darbo-clearfix {
+	display: inline-block;
+}
+ 
+html[xmlns] .darbo-clearfix {
+	display: block;
+}
+ 
+* html .darbo-clearfix {
+	height: 1%;
+}
+
+.darbo-logo {
+    color: #FFB400; /* the darbo color! */
+    text-decoration: none;
+    font-size: 100%;
+    line-height: 100%;
+    height: 100%;
+    text-shadow: #312300 0 0 0.4em;
+}
+
+.darbo-logo:hover {
+    color: #FFFFFF;
+}
+
+.darbo-widget { width: 100%; height: 100%; position: relative; }
+.darbo-chatbox { list-style: none; padding: 0; margin: 0; height: 80%; overflow: auto; }
+.darbo-form, .darbo-status { display: block; padding: 1% 2%; }
+.darbo-compose-alias, .darbo-send-message { float: right; }
+.darbo-chat { display: block; }
+.darbo-compose-message, .darbo-logo, 
+.darbo-alias, .darbo-message { float: left; }
+.darbo-user .darbo-alias, .darbo-user .darbo-message { float: right; }
+.darbo-alias { clear: both; }
+.darbo-message-content { position: relative; }
+.darbo-sprite { background: transparent none no-repeat scroll top left; }
+.darbo-chat-template { display: none; }

@@ -15,7 +15,7 @@ def _createSession(id):
 def _getSessions(id):
 	key = _cacheKey(id)
 	sessions = memcache.get(key)
-	active = 0
+	participants = 0
 	if sessions is None:
 		sessions = {}
 	else:
@@ -30,9 +30,9 @@ def _getSessions(id):
 			else:
 				sessions[token] = session
 				if session.isActive():
-					active += 1
+					participants += 1
 				
-	return sessions, active;
+	return sessions, participants;
 	
 def _setSessions(id, sessions):
 	key = _cacheKey(id)
@@ -45,12 +45,12 @@ def getTokenFromRequest(request):
 	
 def createToken(id):
 	#TODO: Eventually use a secret to verify the integrity of the token
-	sessions, active = _getSessions(id)
+	sessions, participants = _getSessions(id)
 	newSession = _createSession(id)
 	token = channel.create_channel(newSession.getKey())
 	sessions[token] = newSession
 	_setSessions(id, sessions)
-	return (token, active+1)
+	return (token, participants+1)
 	
 def isValidToken(id, token, active=False):
 	sessions, count = _getSessions(id)
@@ -62,8 +62,8 @@ def isValidToken(id, token, active=False):
 		return valid
     
 def sendMessage(id, userToken, msg):
-	sessions, active = _getSessions(id)
-	msg = {'msg':msg.asLiteral(),'active':active}
+	sessions, participants = _getSessions(id)
+	msg = {'msg':msg.asLiteral(),'participants':participants}
 	msgJson = simplejson.dumps(msg)
 	for token in sessions.keys():
 		if userToken != token:
@@ -73,28 +73,28 @@ def sendMessage(id, userToken, msg):
 	return msg
 	
 def countActiveTokens(id):
-	sessions, active = _getSessions(id)
-	return active
+	sessions, participants = _getSessions(id)
+	return participants
 	
 def getSession(id, token):
-	sessions, active = _getSessions(id)
+	sessions, participants = _getSessions(id)
 	if token in sessions:
 		return sessions[token]
 	else:
 		return None;
 	
 def deactivateToken(id, token):
-	sessions, active = _getSessions(id)
+	sessions, participants = _getSessions(id)
 	if token in sessions and sessions[token].isActive():
-		active -= 1
+		participants -= 1
 		sessions[token].setActive(False)
 	_setSessions(id, sessions)
-	return active
+	return participants
 	
 def activateToken(id, token):
-	sessions, active = _getSessions(id)
+	sessions, participants = _getSessions(id)
 	if token in sessions and not sessions[token].isActive():
-		active += 1
+		participants += 1
 		sessions[token].setActive(True)
 	_setSessions(id, sessions)
-	return active
+	return participants

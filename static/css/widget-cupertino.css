@@ -1,0 +1,232 @@
+@import url('../static/css/widget.css');
+
+.darbo-widget { 
+    font-family: Arial, Helvatica;
+}
+
+.darbo-chat {
+    margin-bottom: 1em;
+}
+
+.darbo-compose-alias {
+    background: none transparent;
+    border: none 0;
+    padding: 0;
+    margin: 0;
+    display: block;
+    font-size: 100%;
+    line-height: 100%;
+    padding: 0.1em;
+    height: 100%;
+    font-weight: bold;
+    text-align: right;
+    color: #FFF;
+    text-shadow: #4B535E 0 -0.1em 0;
+}
+
+.darbo-compose-alias:hover,
+.darbo-compose-alias:focus,
+.darbo-compose-message {
+    border: 0.1em solid #999;
+    border-top: 0.15em solid #888;
+    border-right: 0.15em solid #888;
+    padding: 0 2%;
+    display: block;
+    color: #000;
+    height: 100%;
+    line-height: 100%;
+    font-size: 100%;
+    text-shadow: transparent 0 0 0;
+    background-color: #FFF;
+    /* Firefox */
+    -moz-border-radius: 1em;
+    /* Safari, Chrome */
+    -webkit-border-radius: 1em;
+    /* CSS3 */
+    border-radius: 1em;
+    padding: 0 1em;
+    width: 60%;
+}
+
+.darbo-alias {
+    font-size: 0.8em;
+    margin: 0 0.5em;
+    color: #666;
+}
+
+.darbo-message {
+    border: solid 0.1em #AAA;
+    margin: 0 1em;
+    border-width: 0.1em 0 0.15em 0;
+    /* Firefox */
+    -moz-border-radius: 1em;
+    /* Safari, Chrome */
+    -webkit-border-radius: 1em;
+    /* CSS3 */
+    border-radius: 1em;
+    /* for non-css3 browsers */
+    background-color: #D3D3D3;
+    /* for IE */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#D3D3D3', endColorstr='#E4E3E8');
+    /* for webkit browsers */
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#D3D3D3), color-stop(80%, #D3D3D3), to(#E4E3E8)); 
+    /* for firefox 3.6+ */
+    background-image: -moz-linear-gradient(top,  #D3D3D3 0, #D3D3D3 80%, #E4E3E8 100%);
+}
+
+.darbo-user .darbo-message {
+    border-color: #3D532D;
+    border-bottom-width: 0.1em;
+    /* for non-css3 browsers */
+    background-color: #92D841;
+    /* for IE */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#92D841', endColorstr='#B2E74E');
+    /* for webkit browsers */
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#92D841), color-stop(80%, #92D841), to(#B2E74E)); 
+    /* for firefox 3.6+ */
+    background-image: -moz-linear-gradient(top,  #92D841 0, #92D841 80%, #B2E74E 100%);
+}
+
+.darbo-message:before {
+	content:".";
+	position: relative;
+	color: #FFF;
+	width: 96%;
+	margin: 0 auto;
+	display: block;
+	line-height: 100%;
+	font-size: 80%;
+	background-color:#FFF;
+    filter:alpha(opacity=20);
+    -moz-opacity: 0.2;
+    -khtml-opacity: 0.2;
+    opacity: 0.2;
+	-moz-border-radius: 1em;
+	-webkit-border-radius: 1em;
+	border-radius: 1em;
+}
+
+.darbo-user .darbo-message:after {
+	content:".";
+	position: relative;
+	color: #B2E74E;
+	width: 1em;
+	line-height: 100%;
+	font-size: 40%;
+	float: right;
+	display: block;
+	border: solid 0.1em #AAA;
+	border-width: 0 0.2em 0.2em 0;
+    left: -0.5em;
+    margin: 0 0 -0.2em -0.1em;
+	-moz-border-radius: 0;
+	-webkit-border-radius: 0;
+	border-radius: 0;
+	-moz-border-radius-topleft: 1em 0.8em;
+	-webkit-border-top-left-radius: 1em 0.8em;
+	border-top-left-radius: 1em 0.8em;
+	-moz-border-radius-bottomleft: 1em 0.8em;
+	-webkit-border-bottom-left-radius: 1em 0.8em;
+	border-bottom-left-radius: 1em 0.8em;
+	background-color: #92D841;
+    /* for IE */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#92D841', endColorstr='#B2E74E');
+    /* for webkit browsers */
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#92D841), to(#B2E74E)); 
+    /* for firefox 3.6+ */
+    background-image: -moz-linear-gradient(top,  #92D841 0, #B2E74E 100%);
+}
+
+
+.darbo-message:after {
+	content:".";
+	position: relative;
+	color: #E4E3E8;
+	width: 1em;
+	line-height: 100%;
+	font-size: 40%;
+	margin: 0 0 -0.2em 0.3em;
+	display: block;
+	border: solid 0.1em #AAA;
+	border-width: 0 0 0.2em 0.2em;
+	-moz-border-radius-topright: 1em 0.8em;
+	-webkit-border-top-right-radius: 1em 0.8em;
+	border-top-right-radius: 1em 0.8em;
+	-moz-border-radius-bottomright: 1em 0.8em;
+	-webkit-border-bottom-right-radius: 1em 0.8em;
+	border-bottom-right-radius: 1em 0.8em;
+	background-color: #D3D3D3;
+    /* for IE */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#D3D3D3', endColorstr='#E4E3E8');
+    /* for webkit browsers */
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#D3D3D3), to(#E4E3E8)); 
+    /* for firefox 3.6+ */
+    background-image: -moz-linear-gradient(top,  #D3D3D3 0, #E4E3E8 100%);
+}
+
+.darbo-message-content {
+    font-size: 0.8em;
+    line-height: 1em;
+    margin: -0.4em 1em 0.2em;
+    color: #000;
+}
+
+.darbo-send-message {
+    height: 75%;
+    width: 25%;
+    cursor: pointer;
+    font-size: 100%;
+    line-height: 100%;
+    max-width: 6em;
+    border: solid 0.1em #4A6293;
+    border-width: 0.15em 0.15em 0.1em 0.1em;
+    font-weight: bold;
+    color: #FFF;
+    /* Firefox */
+    -moz-border-radius: 1em;
+    /* Safari, Chrome */
+    -webkit-border-radius: 1em;
+    /* CSS3 */
+    border-radius: 1em;
+    /* for non-css3 browsers */
+    background-color: #1E61C8;
+    /* for IE */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#7EA5E0', endColorstr='#1E61C8');
+    /* for webkit browsers */
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#7EA5E0), color-stop(50%, #4A81D3), color-stop(50%, #1E61C8), to(#1E61C8)); 
+    /* for firefox 3.6+ */
+    background-image: -moz-linear-gradient(top,  #7EA5E0 0, #4A81D3 50%, #1E61C8 50%, #1E61C8 100%);
+}
+
+.darbo-chatbox {
+    background-color: #DBE2ED;
+    border-top: solid 0.1em #E6E6E6;    
+    border-bottom: solid 0.1em #CCCCCC;
+}
+
+.darbo-form {
+    border: solid 0.1em #AAA;   
+    border-top-color: #FEFEFE;
+    border-width: 0.1em 0 0.15em;
+    /* for non-css3 browsers */
+    background-color: #C5C7CB;
+    /* for IE */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#EFEFF0', endColorstr='#C5C7CB');
+    /* for webkit browsers */
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#EFEFF0), to(#C5C7CB)); 
+    /* for firefox 3.6+ */
+    background-image: -moz-linear-gradient(top,  #EFEFF0 0, #C5C7CB 100%);
+}
+
+.darbo-status {
+    border-top: solid 0.1em #CCCCCC;    
+    border-bottom: solid 0.1em #A6A6A6;
+    /* for non-css3 browsers */
+    background-color: #6E84A2;
+    /* for IE */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#6E84A2', endColorstr='#B4BFCE');
+    /* for webkit browsers */
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#B4BFCE), color-stop(50%, #899CB4), color-stop(50%, #7F94B0), to(#6E84A2)); 
+    /* for firefox 3.6+ */
+    background-image: -moz-linear-gradient(top,  #B4BFCE 0, #899CB4 50%, #7F94B0 50%, #6E84A2 100%);
+}
