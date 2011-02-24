@@ -394,8 +394,8 @@
         };
         this.applyMetaListeners = function() {
             var meta = this._meta, 
-                hide = function() { meta.slideUp("fast"); },
-                show = function() { meta.slideDown("fast"); };
+                hide = function() { meta.animate({opacity:0.25}, "fast"); },
+                show = function() { meta.animate({opacity:1.00}, "fast"); };
             this._element.mouseenter(hide);
             this._status.mouseenter(show);
             this._element.mouseleave(show);
