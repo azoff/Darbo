@@ -1,4 +1,5 @@
 import settings, hashlib, logging
+from urlparse import urlsplit
 from google.appengine.api import memcache, taskqueue
 from google.appengine.ext import db
 from src.model import Chatroom, Message, ChatroomFromJson
@@ -6,7 +7,14 @@ from src.dao import ChatroomDao
 from src.support.htmlfilter import sanitize
 
 def getIdFromReferrer(referrer):
-    return hashlib.md5(referrer).hexdigest()
+	if referrer is None or len(referrer) == 0:
+		logging.error("Empty referrer detected!")
+		return None
+	url = urlsplit(referrer)
+	path = url.path if len(url.path) > 0 else "/" 
+	# normalize referrers down to a path (get rid of query+fragment)
+	seed = "%s://%s%s" % (url.scheme, url.netloc, path)
+	return hashlib.md5(seed).hexdigest()
     
 def _cacheKey(id):
     return ("Chatroom.%s" % id)
