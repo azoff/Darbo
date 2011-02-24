@@ -3,6 +3,15 @@ import os
 # used for debugging
 IS_DEV_MODE = os.environ['SERVER_SOFTWARE'].startswith('Dev');
 
+# the number of characters allowed in a message
+MESSAGE_CHARACTER_LIMIT = 200
+
+# the number of characters allowed in an alias
+ALIAS_CHARACTER_LIMIT = 20
+
+# the number of characters allowed in a room name
+ROOM_NAME_CHARACTER_LIMIT = 20
+
 # how many messages to track per chat room
 MESSAGE_WINDOW = 50
 
@@ -35,3 +44,16 @@ DEFAULT_CHAT_ALIAS = "anonymous"
 
 # the chatroom saving queue
 CHATROOM_STATE_QUEUE = "chatroom-state"
+
+# used for the client
+def getSettings():
+	return {
+		"limits": {
+			"msg": MESSAGE_CHARACTER_LIMIT,
+			"alias": ALIAS_CHARACTER_LIMIT,
+			"name": ROOM_NAME_CHARACTER_LIMIT
+		},
+		"defaults": {
+			"alias": DEFAULT_CHAT_ALIAS
+		}
+	}

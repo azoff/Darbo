@@ -1,4 +1,4 @@
-import logging
+import logging, settings
 from google.appengine.ext import webapp
 from src.service import chatroomservice, channelservice
 from src.model import Chatroom, JsonResponse
@@ -36,7 +36,8 @@ class JoinHandler(webapp.RequestHandler):
 			response.encodeAndSend({
 				'token': token,
 				'chatroom': chatroom.asLiteral(),
-				'participants': participants
+				'participants': participants,
+				'settings': settings.getSettings()
 			})
 		else:
 			response.encodeAndSend({'error': 'invalid or missing referrer'}, status=401)

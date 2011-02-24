@@ -1,7 +1,5 @@
 TODO
 ====
-- Add a shared header for validation save (generated on talk)
-- Add JS detection/conversion for links in messages
 - Impose character limits for alias and msgs on backend
 - Impose character limits for alias and msgs in widget
 - Add disabled send button state for no msg and too long msg
@@ -24,6 +22,7 @@ TODO
 - Add trusted domains (based off of HTTP origin) to a CORS header
 - Switch to Ajax POST with CORS through widget
 - Create mechanism to show how to use script loader
+- Favicon!
 - Mock up landing page
 - Implement landing page
 - Host the app on App Engine

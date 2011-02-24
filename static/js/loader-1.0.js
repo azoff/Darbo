@@ -211,6 +211,8 @@
         initializeWidget: function(domain, widget, status, callback) {
             widget.setTalkHandler(darbo.getTalkHandler(status.chatroom.id, domain));
             widget.applyChatroomData(status);
+            widget.applyPlaceholders();
+            widget.applyMetaListeners();
             callback(status.chatroom.id, domain, widget);
         },
         
@@ -381,8 +383,6 @@
             this._form = this._element.find(".darbo-form").submit(this.getSendHandler());            
             this._composeMessage = this._form.find(".darbo-compose-message");
             this._chatTemplate = this._chatbox.find(".darbo-chat").removeClass("darbo-hidden").remove();
-            this.applyPlaceholders();
-            this.applyMetaListeners();
         };
         this.applyPlaceholders = function(form) {
             var active = d.activeElement, $ = w.jQuery;
@@ -409,6 +409,7 @@
             var messages = data.chatroom.messages.sort(darbo.compareMessages),
                 widget = this;
             widget._element.attr("room", data.chatroom.id);
+            widget._composeAlias.attr("placeholder", data.settings.defaults.alias);
             if (data.chatroom.name) {
                 widget._name.text(data.chatroom.name).parent().removeClass("darbo-hidden");
             }
