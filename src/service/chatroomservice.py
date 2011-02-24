@@ -5,14 +5,14 @@ from src.model import Chatroom, Message, ChatroomFromJson
 from src.dao import ChatroomDao
 from src.support.htmlfilter import sanitize
 
-def _newId(seed):
-    return hashlib.md5(seed).hexdigest()
+def getIdFromReferrer(referrer):
+    return hashlib.md5(referrer).hexdigest()
     
 def _cacheKey(id):
     return ("Chatroom.%s" % id)
-    
+
 def getIdFromRequest(request):
-    return request.get(settings.CHATROOM_ID_PARAM, _newId(request.referrer))
+    return request.get(settings.CHATROOM_ID_PARAM, None)
 
 def getNameFromRequest(request):
 	return sanitize(request.get(settings.CHATROOM_NAME_PARAM, ""))

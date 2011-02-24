@@ -6,29 +6,36 @@ from src.model import Chatroom, JsonResponse
 class JoinHandler(webapp.RequestHandler):
     
 	def get(self):
+		participants = 0
 		id = chatroomservice.getIdFromRequest(self.request)
 		token = channelservice.getTokenFromRequest(self.request)
-		participants = 0
+		name = chatroomservice.getNameFromRequest(self.request)
 		response = JsonResponse(self.request, self.response)
-		if id is not None:        
+		chatroom = None
+		
+		if id is not None:
 			chatroom = chatroomservice.getChatroom(id)
-			name = chatroomservice.getNameFromRequest(self.request)
-			persist = False
-			if chatroom is None:
-				chatroom = Chatroom(id, name)
-				chatroomservice.cacheAndEnqueueSave(chatroom)
-			elif len(name) > 0 and (name != chatroom.getName()):
-				chatroom.setName(name)
-				chatroomservice.cacheAndEnqueueSave(chatroom)
-			if channelservice.isValidToken(id, token):
-				participants = channelservice.activateToken(id, token)
-			else:
-				token, participants = channelservice.createToken(id)
-			channelservice.updateParticipantCount(id, token)
-			response.encodeAndSend({
-				'token': token,
-				'chatroom': chatroom.asLiteral(),
-				'participants': participants
-			})
+			if chatroom is None: # check for bad IDs
+				id = None
+		if id is None:
+			id = chatroomservice.getIdFromReferrer(self.request.referrer)
+			chatroom = chatroomservice.getChatroom(id)
+		if chatroom is None:
+			chatroom = Chatroom(id, name)
+			chatroomservice.cacheAndEnqueueSave(chatroom)
+		elif len(name) > 0 and (name != chatroom.getName()):
+			chatroom.setName(name)
+			chatroomservice.cacheAndEnqueueSave(chatroom)
+		if channelservice.isValidToken(id, token):
+			participants = channelservice.activateToken(id, token)
 		else:
-			response.encodeAndSend({'error': 'no referrer detected, and no id provided'}, status=500)
+			token, participants = channelservice.createToken(id)
+		channelservice.updateParticipantCount(id, token)
+		response.encodeAndSend({
+			'token': token,
+			'chatroom': chatroom.asLiteral(),
+			'participants': participants
+		})
+		
+	def post(self):
+		self.get()
