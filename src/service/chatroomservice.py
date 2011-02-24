@@ -4,7 +4,7 @@ from google.appengine.api import memcache, taskqueue
 from google.appengine.ext import db
 from src.model import Chatroom, Message, ChatroomFromJson
 from src.dao import ChatroomDao
-from src.support.htmlfilter import sanitize
+from src.utils.htmlutils import escape
 
 def getIdFromReferrer(referrer):
 	if referrer is None or len(referrer) == 0:
@@ -23,14 +23,14 @@ def getIdFromRequest(request):
     return request.get(settings.CHATROOM_ID_PARAM, None)
 
 def getNameFromRequest(request):
-	return sanitize(request.get(settings.CHATROOM_NAME_PARAM, ""))
+	return escape(request.get(settings.CHATROOM_NAME_PARAM, ""))
 	
 def getChatroomFromRequest(request):
 	return ChatroomFromJson(request.get('chatroom'))
     
 def getMessageFromRequest(request):
-	message = sanitize(request.get(settings.CHAT_MESSAGE_PARAM, ""))
-	alias = sanitize(request.get(settings.CHAT_ALIAS_PARAM, ""))
+	message = escape(request.get(settings.CHAT_MESSAGE_PARAM, ""))
+	alias = escape(request.get(settings.CHAT_ALIAS_PARAM, ""))
 	if len(alias) == 0:
 		alias = settings.DEFAULT_CHAT_ALIAS
 	return Message(alias, message)

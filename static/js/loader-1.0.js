@@ -100,6 +100,10 @@
             return utils.hasProperty(obj, key) ? obj[key] : def;
         },
         
+        linkify: function(text) {
+            return text.replace(/(https?:\/\/[^ ]+)/ig, '<a href="$1" target="_blank">$1</a>');
+        },
+        
         hasExtern: function(extern, parent) {
             parent = parent || w;
             extern = extern.split('.', 1);
@@ -483,7 +487,7 @@
             var chat = this._chatTemplate.clone();
             if(options.isUser) { chat.addClass("darbo-user"); }
             chat.find('.darbo-alias').text(status.alias);
-            chat.find('.darbo-message-content').text(status.message);
+            chat.find('.darbo-message-content').html(utils.linkify(status.message));
             return chat;
         };
         this.init(template);        
