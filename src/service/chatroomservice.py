@@ -1,7 +1,6 @@
 import settings, hashlib, logging
 from google.appengine.api import memcache, taskqueue
 from google.appengine.ext import db
-
 from src.model import Chatroom, Message, ChatroomFromJson
 from src.dao import ChatroomDao
 from src.support.htmlfilter import sanitize
@@ -53,9 +52,11 @@ def cacheChatroom(chatroom):
     memcache.set(_cacheKey(chatroom.getId()), chatroom.asJson(), settings.CHATROOM_CACHE_WINDOW)
 
 def enqueueSave(chatroom):
-    taskqueue.add(url='/save', params={ 
-        'chatroom': chatroom.asJson()
-    }, transactional=True)
+    params = {'chatroom': chatroom.asJson()}
+    taskqueue.add(url='/api/save', 
+                  queue_name=settings.CHATROOM_STATE_QUEUE,
+                  params=params, 
+                  transactional=True)
     
 def enqueueTransactionalSave(chatroom):
     db.run_in_transaction(enqueueSave, chatroom)

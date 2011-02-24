@@ -32,3 +32,6 @@ CHAT_ALIAS_PARAM = "alias"
 
 # the default alias
 DEFAULT_CHAT_ALIAS = "anonymous"
+
+# the chatroom saving queue
+CHATROOM_STATE_QUEUE = "chatroom-state"

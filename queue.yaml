@@ -1,0 +1,10 @@
+#http://code.google.com/appengine/docs/python/config/queue.html
+queue:
+- name: chatroom-state
+  rate: 1000/s
+  bucket_size: 1000
+  max_concurrent_requests: 1000
+  retry_parameters:
+    task_retry_limit: 3
+    task_age_limit: 1d
+    
