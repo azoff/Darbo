@@ -4,6 +4,7 @@ from google.appengine.ext import db
 
 from src.model import Chatroom, Message, ChatroomFromJson
 from src.dao import ChatroomDao
+from src.support.htmlfilter import sanitize
 
 def _newId(seed):
     return hashlib.md5(seed).hexdigest()
@@ -15,14 +16,14 @@ def getIdFromRequest(request):
     return request.get(settings.CHATROOM_ID_PARAM, _newId(request.referrer))
 
 def getNameFromRequest(request):
-	return request.get(settings.CHATROOM_NAME_PARAM, "")
+	return sanitize(request.get(settings.CHATROOM_NAME_PARAM, ""))
 	
 def getChatroomFromRequest(request):
 	return ChatroomFromJson(request.get('chatroom'))
     
 def getMessageFromRequest(request):
-	message = request.get(settings.CHAT_MESSAGE_PARAM, "").strip()
-	alias = request.get(settings.CHAT_ALIAS_PARAM, "").strip()
+	message = sanitize(request.get(settings.CHAT_MESSAGE_PARAM, ""))
+	alias = sanitize(request.get(settings.CHAT_ALIAS_PARAM, ""))
 	if len(alias) == 0:
 		alias = settings.DEFAULT_CHAT_ALIAS
 	return Message(alias, message)
