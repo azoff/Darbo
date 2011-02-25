@@ -11,5 +11,5 @@ def escape(text):
 
 def escapeGet(request, key, size, default=""):
 	value = request.get(key, "")
-	value = value[0:size-1] if len(value) > 0 else default
+	value = value[0:size] if len(value) > 0 else default
 	return escape(value)

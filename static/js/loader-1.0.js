@@ -423,27 +423,32 @@
         };
         this.bindLimiter = function(input, limit) {
             var notif = input.siblings(".darbo-notif").hide(0).removeClass("darbo-hidden"),
-                timeout = null;
+                timeout = null, 
+                checkLimit = function() {
+                    var length = (input.hasClass("darbo-placeholder") ? 0 : w.jQuery.trim(input.val()).length),
+                        delta = limit-length;
+                    if (delta <= LIMIT_THRESHOLD) {
+                        notif.addClass("darbo-invalid");
+                    } else {
+                        notif.removeClass("darbo-invalid");                    
+                    }
+                    if (delta < 0) {
+                        input.addClass("darbo-invalid");
+                    } else {
+                        input.removeClass("darbo-invalid");
+                    }
+                    return delta;
+                }, fadeOut = function(){ 
+                    notif.stop(true,true).fadeOut("fast");
+                    clearTimeout(timeout); timeout = null;  
+                };
             input.bind("mousedown keyup", function(){
-                var length = (input.hasClass("darbo-placeholder") ? 0 : w.jQuery.trim(input.val()).length),
-                    delta = limit-length;
+                var delta = checkLimit();
                 if (timeout) { clearTimeout(timeout); }
                 notif.text(delta).stop(true,true).fadeIn(0);
-                if (delta <= LIMIT_THRESHOLD) {
-                    notif.addClass("darbo-invalid");
-                } else {
-                    notif.removeClass("darbo-invalid");                    
-                }
-                if (delta < 0) {
-                    input.addClass("darbo-invalid");
-                } else {
-                    input.removeClass("darbo-invalid");
-                }
-                timeout = setTimeout(function(){ 
-                    timeout = null; 
-                    notif.stop(true,true).fadeOut("fast"); 
-                }, LIMIT_TIMEOUT);
-            });
+                timeout = setTimeout(fadeOut, LIMIT_TIMEOUT);
+            }).blur(fadeOut);
+            checkLimit();
         };
         this.applyChatroomData = function(data) {
             var messages = data.chatroom.messages.sort(darbo.compareMessages),
@@ -519,7 +524,7 @@
                                 utils.error(status.error);                                
                             } else {
                                 widget.addMessage(status, {isUser:true,animate:true});
-                                widget._composeMessage.val("");
+                                widget._composeMessage.removeClass("darbo-invalid").val("");
                             }
                         });
                     }   

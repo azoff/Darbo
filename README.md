@@ -1,7 +1,5 @@
 TODO
 ====
-- Impose character limits for alias and msgs on backend
-- Impose character limits for alias and msgs in widget
 - Add disabled send button state for no msg and too long msg
 - Add support for disabling proprietary themes (to allow for custom themes)
 - Allow for notification mechanism on inactive message received

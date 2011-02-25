@@ -21,7 +21,7 @@ html[xmlns] .darbo-clearfix {
 	height: 1%;
 }
 
-.darbo-hidden { display: none; }
+.darbo-hidden { display: none !important; }
 
 .darbo-meta { position: absolute; width: 96%; z-index: 99; padding: 1% 2%; }
 .darbo-widget { width: 100%; height: 100%; position: relative; }
