@@ -21,22 +21,23 @@ html[xmlns] .darbo-clearfix {
 	height: 1%;
 }
 
-.darbo-hidden {
-    display: none;
-}
+.darbo-hidden { display: none; }
 
 .darbo-meta { position: absolute; width: 96%; z-index: 99; padding: 1% 2%; }
 .darbo-widget { width: 100%; height: 100%; position: relative; }
 .darbo-chatbox { list-style: none; padding: 0; margin: 0; height: 80%; overflow: auto; }
 .darbo-form, .darbo-status { display: block; padding: 1% 2%; }
+.darbo-notif,
 .darbo-chat { display: block; }
 .darbo-compose-message, .darbo-logo, 
 .darbo-alias, .darbo-message,
-.darbo-meta-welcome { float: left; }
+.darbo-meta-welcome, 
+.darbo-notif-message { float: left; }
 .darbo-meta-particiants,
 .darbo-compose-alias, .darbo-send-message,
 .darbo-user .darbo-alias, 
-.darbo-user .darbo-message { float: right; }
+.darbo-user .darbo-message,
+.darbo-notif-alias { float: right; }
 .darbo-alias { clear: both; }
 .darbo-message-content { position: relative; }
 .darbo-sprite { background: transparent none no-repeat scroll top left; }

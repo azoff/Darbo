@@ -23,6 +23,16 @@
     TEMPLATE_KEY = 'darbo-template-',
     
     /**
+     * The threshold on making the limiters invalid
+     */
+    LIMIT_THRESHOLD = 10,
+    
+    /**
+     * The timeout on hiding the limiter
+     */
+    LIMIT_TIMEOUT = 1000,
+    
+    /**
      * Cache teh widget template in the browser
      */
     CLIENT_CACHE_TEMPLATE = false,
@@ -211,8 +221,6 @@
         initializeWidget: function(domain, widget, status, callback) {
             widget.setTalkHandler(darbo.getTalkHandler(status.chatroom.id, domain));
             widget.applyChatroomData(status);
-            widget.applyPlaceholders();
-            widget.applyMetaListeners();
             callback(status.chatroom.id, domain, widget);
         },
         
@@ -398,12 +406,44 @@
         };
         this.applyMetaListeners = function() {
             var meta = this._meta, 
-                hide = function() { meta.animate({opacity:0.25}, "fast"); },
-                show = function() { meta.animate({opacity:1.00}, "fast"); };
+                hide = function() { meta.fadeTo("fast", 0.25); },
+                show = function() { meta.fadeTo("fast", 1); };
             this._element.mouseenter(hide);
             this._status.mouseenter(show);
             this._element.mouseleave(show);
             this._status.mouseleave(hide);
+        };
+        this.applyLimits = function(limits) {
+            if (limits.alias) {
+                this.bindLimiter(this._composeAlias, limits.alias);
+            }
+            if (limits.message) {
+                this.bindLimiter(this._composeMessage, limits.message);
+            }
+        };
+        this.bindLimiter = function(input, limit) {
+            var notif = input.siblings(".darbo-notif").hide(0).removeClass("darbo-hidden"),
+                timeout = null;
+            input.bind("mousedown keyup", function(){
+                var length = (input.hasClass("darbo-placeholder") ? 0 : w.jQuery.trim(input.val()).length),
+                    delta = limit-length;
+                if (timeout) { clearTimeout(timeout); }
+                notif.text(delta).stop(true,true).fadeIn(0);
+                if (delta <= LIMIT_THRESHOLD) {
+                    notif.addClass("darbo-invalid");
+                } else {
+                    notif.removeClass("darbo-invalid");                    
+                }
+                if (delta < 0) {
+                    input.addClass("darbo-invalid");
+                } else {
+                    input.removeClass("darbo-invalid");
+                }
+                timeout = setTimeout(function(){ 
+                    timeout = null; 
+                    notif.stop(true,true).fadeOut("fast"); 
+                }, LIMIT_TIMEOUT);
+            });
         };
         this.applyChatroomData = function(data) {
             var messages = data.chatroom.messages.sort(darbo.compareMessages),
@@ -418,6 +458,9 @@
                widget.addMessage(message);
             });
             widget.scrollToBottom();
+            widget.applyLimits(data.settings.limits);
+            widget.applyPlaceholders();
+            widget.applyMetaListeners();
         };
         this.setParticipants = function(participants) {
             this._participants.text(participants-1); // -1 for current user

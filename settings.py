@@ -49,9 +49,8 @@ CHATROOM_STATE_QUEUE = "chatroom-state"
 def getSettings():
 	return {
 		"limits": {
-			"msg": MESSAGE_CHARACTER_LIMIT,
-			"alias": ALIAS_CHARACTER_LIMIT,
-			"name": ROOM_NAME_CHARACTER_LIMIT
+			"message": MESSAGE_CHARACTER_LIMIT,
+			"alias": ALIAS_CHARACTER_LIMIT
 		},
 		"defaults": {
 			"alias": DEFAULT_CHAT_ALIAS
