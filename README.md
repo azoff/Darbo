@@ -1,10 +1,7 @@
 TODO
 ====
-- Add disabled send button state for no msg and too long msg
-- Add support for disabling proprietary themes (to allow for custom themes)
 - Allow for notification mechanism on inactive message received
 - Create 2 more themes
-- Create a theme switcher
 - Create an options menu
 - Put a theme switcher in the options menu
 - Create a bookmarklet

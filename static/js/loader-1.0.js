@@ -68,6 +68,11 @@
     DEFULAT_THEME = 'cupertino',
     
     /**
+     * The base theme of the chat widget
+     */
+    BASE_THEME = 'base',
+    
+    /**
      * The default locale of the chat widget
      */
     DEFAULT_LOCALE = 'en-US',
@@ -82,8 +87,8 @@
      */
     utils = {
 
-        error: function(msg) {
-            if(w.console && w.console.error) { 
+        error: function(msg, throwable) {
+            if(w.console && w.console.error && !throwable) { 
                 w.console.error(msg);
             } else {
                 throw msg;
@@ -125,12 +130,23 @@
             }
         },
          
-        loadScript: function(src, callback) {
+        loadScript: function(src, onload) {
             var script = d.createElement('script');
-            script.onload = callback;
+            script.onload = onload;
             script.src = src;
             script.async = true;
             d.body.appendChild(script);
+        },
+        
+        loadStylesheet: function(href) {
+            var link = d.createElement("link"),
+                head = d.getElementsByTagName("head")[0];
+            link.href = href;
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.media = 'screen';
+            head.appendChild(link);
+            return link;
         }
 
     },
@@ -152,7 +168,7 @@
                             // initialize the widget with the data
                             utils.wrap(darbo.initializeWidget,
                                 // open up the listener channel
-                                darbo.openChannel
+                                utils.wrap(darbo.openChannel, darbo.exposeCurrent)
                             )
                         )
                     )
@@ -183,12 +199,12 @@
             var $cript  = w.jQuery(script),
                 width   = $cript.attr("width"),
                 height  = $cript.attr("height"),
-                theme   = $cript.attr("theme") || DEFULAT_THEME,
+                theme   = $cript.attr("theme"),
                 locale  = $cript.attr("locale") || DEFAULT_LOCALE;
-                darbo.loadWidgetCss(domain, theme);
-                darbo.getTemplate(domain, locale, function(template){
+                darbo.getTemplate(domain, locale, function(template) {
                     var widget = new Widget(width, height, domain, template);
                     widget.replaceScript($cript);
+                    widget.setTheme(domain, theme);
                     callback($cript, domain, widget);
                 });
         },
@@ -200,6 +216,10 @@
         getApiUrl: function(domain, action, jsonp) {
             jsonp = jsonp ? "?callback=?" : "?";
             return domain + API_NAMESPACE + action + jsonp;
+        },
+        
+        getThemeUrl: function(domain, theme) {
+            return domain + THEME_PATH + theme + "?v=" + VERSION;
         },
         
         joinChatroom: function(script, domain, widget, callback) {
@@ -221,20 +241,25 @@
         initializeWidget: function(domain, widget, status, callback) {
             widget.setTalkHandler(darbo.getTalkHandler(status.chatroom.id, domain));
             widget.applyChatroomData(status);
-            callback(status.chatroom.id, domain, widget);
+            callback(status.chatroom.id, domain, widget, false);
         },
         
-        openChannel: function(id, domain, widget, refreshed) {
-            var token = (new User()).getToken(), 
-            socket = new w.goog.appengine.Channel(token);
+        openChannel: function(id, domain, widget, refreshed, callback) {
+            var user = new User(), token = user.getToken(),
+            socket = new w.goog.appengine.Channel(token),
+            onclose = utils.wrap(darbo.onWindowClose, socket, id, domain);
             socket.open({
-                onopen: w.jQuery.noop,
+                onopen: function(){ callback(user, widget); },
                 onmessage: darbo.getMesaageReciever(widget),
-                onerror: darbo.getChannelErrorHandler(id, domain, widget, refreshed),
+                onerror: darbo.getChannelErrorHandler(id, domain, widget, refreshed, callback),
                 onclose: w.jQuery.noop
             });
-            w.jQuery(w).bind("beforeunload unload",
-                utils.wrap(darbo.onWindowClose, socket, id, domain));
+            w.jQuery(w).bind("beforeunload unload", onclose);
+        },
+        
+        exposeCurrent: function(user, widget) {
+            darbo.currentUser = user;
+            darbo.currentWidget = widget;
         },
         
         onWindowClose: function(event, socket, id, domain) {
@@ -246,15 +271,19 @@
         },
         
         getChannelErrorHandler: function(id, domain, widget, refreshed) {
-            return function(error){
-                // refresh the token if there is a socket error
-                if (!refreshed) {
-                    darbo.refreshToken(id, domain, function(){
-                        darbo.openChannel(id, domain, widget, true);
-                    });
-                }
-                utils.error(error);
-            };
+            if (!refreshed) {
+                return function(error){
+                    // refresh the token if there is a socket error
+                    if (!refreshed) {
+                        darbo.refreshToken(id, domain, function(){
+                            darbo.openChannel(id, domain, widget, true, callback);
+                        });
+                    }
+                    utils.error(error);
+                };
+            } else {
+                return w.jQuery.noop;
+            }
         },
         
         refreshToken: function(id, domain, callback) {
@@ -317,15 +346,6 @@
             }
         },
         
-        loadWidgetCss: function(domain, theme) {
-            w.jQuery("<link/>", {
-                href: (domain + THEME_PATH + theme + "?v=" + VERSION),
-                rel: 'stylesheet',
-                type: 'text/css',
-                media: 'screen'
-            }).appendTo("head");
-        },
-        
         /**
          * Orders by created ASC
          */
@@ -344,7 +364,7 @@
     /**
      * A convenience class to encapsulate user data
      */
-    User = darbo.User = function(meta) {
+    User = function(meta) {
         if(utils.hasProperty(w.localStorage, USER_KEY)) {
             this._meta = w.JSON.parse(
                 w.localStorage[USER_KEY]
@@ -374,8 +394,10 @@
     /**
      * A convenience class for widgets
      */
-    Widget = darbo.Widget = function(width, height, domain, template) {
+    Widget = function(width, height, domain, template) {
         this.init = function(template) {
+            darbo._widget = this;
+            this._stylesheets = [];
             var alias = (new User()).getAlias() || "";
             this._element = w.jQuery(template);
             if(width) { this._element.css("width", width); }
@@ -403,6 +425,30 @@
                     elm.val(elm.attr('placeholder')).addClass('darbo-placeholder');
                 }
             }).blur(); $(active).focus();
+        };
+        this.setTheme = function(domain, theme) {
+            var widget = this, url; 
+            if (!theme) { theme = DEFULAT_THEME; }
+            if (/[\.\/]/.test(theme)) { 
+                url = darbo.getThemeUrl(domain, BASE_THEME);
+            } else {
+                url = darbo.getThemeUrl(domain, theme);
+                theme = null;
+            }
+            this.clearThemes();
+            widget.addTheme(utils.loadStylesheet(url));
+            if (theme) { // custom themes
+                widget.addTheme(utils.loadStylesheet(theme));
+            }
+        };
+        this.addTheme = function(theme) {
+            this._stylesheets.push(w.jQuery(theme));
+        };
+        this.clearThemes = function() {
+            if (this._stylesheets.length > 0) {
+                do { this._stylesheets.pop().remove(); } 
+                while (this._stylesheets.length > 0);
+            }
         };
         this.applyMetaListeners = function() {
             var meta = this._meta, 

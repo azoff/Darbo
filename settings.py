@@ -10,7 +10,7 @@ MESSAGE_CHARACTER_LIMIT = 200
 ALIAS_CHARACTER_LIMIT = 20
 
 # the number of characters allowed in a room name
-ROOM_NAME_CHARACTER_LIMIT = 20
+ROOM_NAME_CHARACTER_LIMIT = 30
 
 # how many messages to track per chat room
 MESSAGE_WINDOW = 50

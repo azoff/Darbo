@@ -1,7 +1,6 @@
-@import url('../static/css/widget.css');
+@import url('base');
 
 .darbo-logo {
-    float: left;
     text-decoration: none;
     color: #EEEEEE;
     padding: 1% 0;
