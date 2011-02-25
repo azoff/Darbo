@@ -254,7 +254,7 @@
                 onerror: darbo.getChannelErrorHandler(id, domain, widget, refreshed, callback),
                 onclose: w.jQuery.noop
             });
-            w.jQuery(w).bind("beforeunload unload", onclose);
+            w.jQuery(w).bind("unload", onclose);
         },
         
         exposeCurrent: function(user, widget) {
@@ -270,7 +270,7 @@
             if (socket.close) { socket.close(); }
         },
         
-        getChannelErrorHandler: function(id, domain, widget, refreshed) {
+        getChannelErrorHandler: function(id, domain, widget, refreshed, callback) {
             if (!refreshed) {
                 return function(error){
                     // refresh the token if there is a socket error
