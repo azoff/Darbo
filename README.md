@@ -1,6 +1,6 @@
 TODO
 ====
-- Allow for notification mechanism on inactive message received
+- Switch to Ajax POST with CORS through widget
 - Create 2 more themes
 - Create an options menu
 - Put a theme switcher in the options menu
@@ -15,7 +15,6 @@ TODO
 - Move tokens to be owned by secret and not by chatroom
   - Add reset secret option on secret generation link
 - Add trusted domains (based off of HTTP origin) to a CORS header
-- Switch to Ajax POST with CORS through widget
 - Create mechanism to show how to use script loader
 - Favicon!
 - Mock up landing page

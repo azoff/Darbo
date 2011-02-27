@@ -19,7 +19,7 @@
 }
 
 .darbo-notif {
-    margin-top: -1.2em;
+    margin-top: -1em;
     position: relative;
     line-height: 100%;
     padding: 0.4em 0.7em;
@@ -27,7 +27,7 @@
     vertical-align: middle;
     border: solid 0.2em #FFF;
     color: #FFF;
-    font-size: 80%;
+    font-size: 60%;
     font-weight: bold;
     /* Firefox */
     -moz-border-radius: 1em;
@@ -46,11 +46,11 @@
 }
 
 .darbo-notif-alias {
-    margin-right: -1.2em;
+    margin-right: -2em;
 }
 
 .darbo-notif-message {
-    margin-left: -1.2em;
+    margin-left: -2em;
 }
 
 .darbo-notif.darbo-invalid {
@@ -114,7 +114,8 @@
 
 .darbo-message {
     border: solid 0.1em #AAA;
-    margin: 0 1em;
+    margin: 0 3%;
+	max-width: 93%;
     border-width: 0.1em 0 0.15em 0;
     /* Firefox */
     -moz-border-radius: 1em;
@@ -173,6 +174,7 @@
 	font-size: 40%;
 	float: right;
 	display: block;
+	margin: 0.3em 0.3em 0 0;
 	border-color: #3D532D;
 	border-width: 0 0.2em 0.2em 0;
 	-moz-border-radius: 0;
@@ -196,6 +198,7 @@
 
 .darbo-message:after {
 	content:".";
+	margin: 0.3em 0 0 0.3em;
 	position: relative;
 	color: #E4E3E8;
 	width: 1em;

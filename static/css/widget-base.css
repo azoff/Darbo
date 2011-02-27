@@ -38,6 +38,7 @@ html[xmlns] .darbo-clearfix {
 .darbo-user .darbo-alias, 
 .darbo-user .darbo-message,
 .darbo-notif-alias { float: right; }
+.darbo-message { word-wrap: break-word; }
 .darbo-alias { clear: both; }
 .darbo-message-content { position: relative; }
 .darbo-sprite { background: transparent none no-repeat scroll top left; }
