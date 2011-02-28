@@ -40,9 +40,6 @@ def _setSessions(id, sessions):
 		sessions[token] = sessions[token].asLiteral()
 	memcache.set(key, simplejson.dumps(sessions), settings.SESSION_CACHE_WINDOW)
 	
-def getTokenFromRequest(request):
-	return request.get(settings.TOKEN_PARAM, None)
-	
 def createToken(id):
 	#TODO: Eventually use a secret to verify the integrity of the token
 	sessions, participants = _getSessions(id)

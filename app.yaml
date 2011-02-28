@@ -7,6 +7,9 @@ handlers:
 
 - url: /api/.*
   script: src/api.py
+  
+- url: /assets/.*
+  script: src/assets.py
 
 - url: /load/([0-9\.]+)
   static_files: static/js/loader-\1.js
@@ -20,10 +23,6 @@ handlers:
 
 - url: /theme/([^\?]+)
   static_files: static/css/widget-\1.css
-  upload: /static/
-  
-- url: /template/([^\?]+)
-  static_files: static/html/widget-\1.html
   upload: /static/
 
 - url: /static/(.*)

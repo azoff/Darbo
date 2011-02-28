@@ -1,26 +1,26 @@
 import logging, settings
-from google.appengine.ext import webapp
+from src.handler.api import ApiHandler
 from src.service import chatroomservice, channelservice
-from src.model import Chatroom, JsonResponse
+from src.model import Chatroom
+from src.utils import stringutils
 
-class JoinHandler(webapp.RequestHandler):
+class JoinHandler(ApiHandler):
     
-	def get(self):
+	def onApiRequest(self):
+		id = self.param(settings.CHATROOM_ID_PARAM)
+		token = self.param(settings.TOKEN_PARAM)
+		name = self.param(settings.CHATROOM_NAME_PARAM, "", settings.ROOM_NAME_CHARACTER_LIMIT, True)
 		participants = 0
-		id = chatroomservice.getIdFromRequest(self.request)
-		token = channelservice.getTokenFromRequest(self.request)
-		name = chatroomservice.getNameFromRequest(self.request)
-		response = JsonResponse(self.request, self.response)
 		chatroom = None
 		
-		if id is not None:
+		if stringutils.isNotEmpty(id):
 			chatroom = chatroomservice.getChatroom(id)
 			if chatroom is None: # check for bad IDs
 				id = None
-		if id is None:
-			id = chatroomservice.getIdFromReferrer(self.request.referrer)
+		if stringutils.isEmpty(id):
+			id = chatroomservice.getIdFromUrl(self.request.referrer)
 		
-		if id is not None:
+		if stringutils.isNotEmpty(id):
 			chatroom = chatroomservice.getChatroom(id)
 			if chatroom is None:
 				chatroom = Chatroom(id, name)
@@ -33,14 +33,11 @@ class JoinHandler(webapp.RequestHandler):
 			else:
 				token, participants = channelservice.createToken(id)
 			channelservice.updateParticipantCount(id, token)
-			response.encodeAndSend({
+			self.sendApiResponse({
 				'token': token,
 				'chatroom': chatroom.asLiteral(),
 				'participants': participants,
-				'settings': settings.getSettings()
+				'settings': settings.getClientSettings()
 			})
 		else:
-			response.encodeAndSend({'error': 'invalid or missing referrer'}, status=401)
-		
-	def post(self):
-		self.get()
+			self.sendApiError('invalid or missing referrer', 401)

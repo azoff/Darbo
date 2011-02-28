@@ -1,6 +1,10 @@
 TODO
 ====
 - Switch to Ajax POST with CORS through widget
+- Validation on saves
+- Test expired token
+- Add error handlers
+  - http://code.google.com/appengine/docs/python/config/appconfig.html#Custom_Error_Responses
 - Create 2 more themes
 - Create an options menu
 - Put a theme switcher in the options menu

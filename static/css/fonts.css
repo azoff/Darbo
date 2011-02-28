@@ -1,21 +1,21 @@
 @font-face {
     font-family: 'Technique';
-    src: url('../fonts/techniqu-webfont.eot');
-    src: url('../fonts/techniqu-webfont.eot?iefix') format('eot'),
-         url('../fonts/techniqu-webfont.woff') format('woff'),
-         url('../fonts/techniqu-webfont.ttf') format('truetype'),
-         url('../fonts/techniqu-webfont.svg#webfontSKOuuhUP') format('svg');
+    src: url('/assets/font?family=technique&type=eot');
+    src: url('/assets/font?family=technique&type=eot&iefix') format('eot'),
+         url('/assets/font?family=technique&type=woff') format('woff'),
+         url('/assets/font?family=technique&type=ttf') format('truetype'),
+         url('/assets/font?family=technique&type=svg#webfontSKOuuhUP') format('svg');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'Technique Outline';
-    src: url('../fonts/techniqo-webfont.eot');
-    src: url('../fonts/techniqo-webfont.eot?iefix') format('eot'),
-         url('../fonts/techniqo-webfont.woff') format('woff'),
-         url('../fonts/techniqo-webfont.ttf') format('truetype'),
-         url('../fonts/techniqo-webfont.svg#webfontO3gtoO7e') format('svg');
+    src: url('/assets/font?family=technique&variant=outline&type=eot');
+    src: url('/assets/font?family=technique&variant=outline&type=eot&iefix') format('eot'),
+         url('/assets/font?family=technique&variant=outline&type=woff') format('woff'),
+         url('/assets/font?family=technique&variant=outline&type=ttf') format('truetype'),
+         url('/assets/font?family=technique&variant=outline&type=svg#webfontO3gtoO7e') format('svg');
     font-weight: normal;
     font-style: normal;
 }

@@ -1,6 +1,5 @@
 import logging
 from django.utils import simplejson
-from jsonresponse import JsonResponse
 from chatroom import Chatroom
 from message import Message
 from session import Session

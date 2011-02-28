@@ -31,6 +31,12 @@
      * The timeout on hiding the limiter
      */
     LIMIT_TIMEOUT = 1000,
+
+	/**
+	 * The timeout on the polling interval for local dev
+	 */
+	POLLING_TIMEOUT_MS = 5000,
+
     
     /**
      * Cache teh widget template in the browser
@@ -51,16 +57,16 @@
      * The relative path to the API namespace
      */
     API_NAMESPACE = '/api/',
+
+	/**
+     * The relative path to the asset namespace
+     */
+    ASSET_NAMESPACE = '/assets/',
   
     /**
      * The relative path to the theme handler
      */
     THEME_PATH = '/theme/',
-    
-    /**
-     * The relative path to the template handler
-     */
-    TEMPLATE_PATH = '/template/',
     
     /**
      * The default theme of the chat widget
@@ -72,16 +78,6 @@
      */
     BASE_THEME = 'base',
     
-    /**
-     * The default locale of the chat widget
-     */
-    DEFAULT_LOCALE = 'en-US',
-    
-    /**
-     * The matching expression for the api domain
-     */
-    API_DOMAIN_REGX = /^(.+?)\/load[_$]/,
-
     /**
      * Useful JS shortcuts and tools
      */
@@ -130,10 +126,10 @@
             }
         },
          
-        loadScript: function(src, onload) {
+        loadScript: function(domain, path, onload) {
             var script = d.createElement('script');
             script.onload = onload;
-            script.src = src;
+            script.src = domain + path;
             script.async = true;
             d.body.appendChild(script);
         },
@@ -186,7 +182,7 @@
             for (extern in EXTERNS) {
                 if (!utils.hasExtern(EXTERNS[extern])) {
                     count++;
-                    utils.loadScript(extern, onload);
+                    utils.loadScript(domain, extern, onload);
                 }
             }
             if (count <= 0) {
@@ -200,7 +196,7 @@
                 width   = $cript.attr("width"),
                 height  = $cript.attr("height"),
                 theme   = $cript.attr("theme"),
-                locale  = $cript.attr("locale") || DEFAULT_LOCALE;
+                locale  = $cript.attr("locale");
                 darbo.getTemplate(domain, locale, function(template) {
                     var widget = new Widget(width, height, domain, template);
                     widget.replaceScript($cript);
@@ -208,33 +204,56 @@
                     callback($cript, domain, widget);
                 });
         },
-        
-        getApiArgs: function(extraArgs) {
-            return w.jQuery.extend({v: VERSION}, extraArgs);
-        },
-        
-        getApiUrl: function(domain, action, jsonp) {
-            jsonp = jsonp ? "?callback=?" : "?";
-            return domain + API_NAMESPACE + action + jsonp;
-        },
+
+		assetCall: function(domain, action, args, callback) {
+			darbo.serverCall(domain, ASSET_NAMESPACE, action, args, callback);
+		},
+
+		apiCall: function(domain, action, args, callback) {
+			darbo.serverCall(domain, API_NAMESPACE, action, args, function(response){
+				var status = response ? w.JSON.parse(response) : {error:'no response'};
+				if (!status) {
+					utils.error("API did not return a valid response for '" + action + "', raw response: " + response);
+				} else if (status.error && !status.expired) {
+					utils.error("API returned an error for '" + action + "', error details: " + status.error);
+				} else {
+					callback(status);
+				}
+			});
+		},
+
+		serverCall: function(domain, namespace, action, args, callback){
+			var url = darbo.getServerUrl(domain, namespace, action);
+			args = w.jQuery.extend({v: VERSION}, args);
+			w.jQuery.ajax({
+				url: url,
+				headers: {'Darbo-Api-Key': '123456'},
+				type: 'POST',
+				data: args,
+				complete: function(xhr) {
+					callback(xhr.responseText);
+				}
+			});
+		},
+		
+		getServerUrl: function(domain, namespace, action, args) {
+			var url = domain + namespace + action;
+			if (args) {
+				url += "?" + w.jQuery.param(args);
+			}
+			return url;
+		},
         
         getThemeUrl: function(domain, theme) {
             return domain + THEME_PATH + theme + "?v=" + VERSION;
         },
         
         joinChatroom: function(script, domain, widget, callback) {
-            var room = script.attr("room"), name = script.attr("name"),
-                url = darbo.getApiUrl(domain, "join"), user = new User(),
-                args = darbo.getApiArgs({token:user.getToken()});
-                if (room) { args.room = room; }
-                if (name) { args.name = name; }
-            w.jQuery.getJSON(url, args, function(status) {
-                if (!status.error) {
-                    user.setToken(status.token).save();
-                    callback(domain, widget, status);
-                } else {
-                    utils.error("error joining chatroom: " + status.error);
-                }
+            var args = { room: script.attr("room"), name: script.attr("name") },
+                user = new User();
+            darbo.apiCall(domain, 'join', args, function(status) {
+                user.setToken(status.token).save();
+                callback(domain, widget, status);
             });
         },
         
@@ -245,10 +264,11 @@
         },
         
         openChannel: function(id, domain, widget, refreshed, callback) {
-            var user = new User(), token = user.getToken(),
+            w.goog.appengine.Socket.POLLING_TIMEOUT_MS = POLLING_TIMEOUT_MS;
+			var user = new User(), token = user.getToken(),
             socket = new w.goog.appengine.Channel(token),
-            onclose = utils.wrap(darbo.onWindowClose, socket, id, domain);
-            socket.open({
+            onclose = utils.wrap(darbo.onWindowClose, socket, id, domain);            
+			socket.open({
                 onopen: function(){ callback(user, widget); },
                 onmessage: darbo.getMesaageReciever(widget),
                 onerror: darbo.getChannelErrorHandler(id, domain, widget, refreshed, callback),
@@ -263,11 +283,13 @@
         },
         
         onWindowClose: function(event, socket, id, domain) {
-            var url = darbo.getApiUrl(domain, "leave", false), user = new User(),
-                date = new Date(), img = new Image(1,1),
-                args = darbo.getApiArgs({room:id,token:user.getToken(),d:date.getTime()}); 
-            img.src = url + w.jQuery.param(args);
-            if (socket.close) { socket.close(); }
+            var user = new User(), 
+				date = new Date(),
+				img = new Image(1,1),
+                args = { room:id, token:user.getToken(), d:date.getTime() },
+				src = darbo.getServerUrl(domain, API_NAMESPACE, "leave", args);
+            img.src = src;
+            if(socket.close) { socket.close(); }
         },
         
         getChannelErrorHandler: function(id, domain, widget, refreshed, callback) {
@@ -301,43 +323,39 @@
         },
         
         getTalkHandler: function(id, domain) {
-            var url = darbo.getApiUrl(domain, "talk"),
-                args = darbo.getApiArgs({room:id});
-            return function(message, callback) {
-                var user = new User(), callee = arguments.callee;
+            var args = { room:id };
+            return function talkHandler(message, callback) {
+                var user = new User();
                 args.token = user.getToken();
                 args.alias = user.getAlias();
                 args.message = message;
-                w.jQuery.getJSON(url, args, function(status) {
-                    if (!status.error) {
-                        callback(status.msg);
-                    } else if (status.expired) {
+                darbo.apiCall(domain, 'talk', args, function(status) {
+                    if (status.expired) {
                         darbo.refreshToken(id, domain, function(){
-                            callee(message, callback);
+                            talkHandler(message, callback);
                         });
                     } else {
-                        utils.error("error sending message: " + status.error);
+                        callback(status.msg);
                     }
                 });
             };
         },
         
         getTemplate: function(domain, locale, callback) {
-            var url = domain + TEMPLATE_PATH + locale,
-                args = darbo.getApiArgs(),
+            var args = {locale: locale},
                 key = TEMPLATE_KEY + locale + "-" + VERSION;
             if (utils.hasProperty(w.localStorage, key) && CLIENT_CACHE_TEMPLATE) {
                 callback(w.localStorage[key]);
             } else {
-                w.jQuery.get(url, args, function(template){
-                    w.localStorage[key] = template;
-                    callback(template);
-                });
+				darbo.assetCall(domain, 'template', args, function(template) {
+					w.localStorage[key] = template;
+					callback(template);
+				});
             }
         },
         
         getApiDomain: function(script) {
-            var domain = script.getAttribute('src').match(API_DOMAIN_REGX),
+            var domain = script.getAttribute('src').match(/(https?:\/\/.+?)\/load/i),
                 loc = w.location;
             if (domain && domain.length >= 2) {
                 return domain[1];
@@ -417,11 +435,11 @@
         this.applyPlaceholders = function(form) {
             var active = d.activeElement, $ = w.jQuery;
             this._element.find('[placeholder]').focus(function (elm) {
-                elm = $(this); if (elm.attr('placeholder') != '' && elm.val() == elm.attr('placeholder')) {
+                elm = $(this); if (elm.attr('placeholder') !== '' && elm.val() == elm.attr('placeholder')) {
                     elm.val('').removeClass('darbo-placeholder');
                 }
             }).blur(function (elm) {
-                elm = $(this); if (elm.attr('placeholder') != '' && (elm.val() == '' || elm.val() == elm.attr('placeholder'))) {
+                elm = $(this); if (elm.attr('placeholder') !== '' && (elm.val() === '' || elm.val() === elm.attr('placeholder'))) {
                     elm.val(elm.attr('placeholder')).addClass('darbo-placeholder');
                 }
             }).blur(); $(active).focus();

@@ -4,34 +4,19 @@ from google.appengine.api import memcache, taskqueue
 from google.appengine.ext import db
 from src.model import Chatroom, Message, ChatroomFromJson
 from src.dao import ChatroomDao
-from src.utils.htmlutils import escapeGet
+from src.utils import stringutils
 
 def _cacheKey(id):
     return ("Chatroom.%s" % id)
 
-def getIdFromReferrer(referrer):
-	if referrer is None or len(referrer) == 0:
-		logging.error("Empty referrer detected!")
+def getIdFromUrl(url):
+	if stringutils.isEmpty(url):
 		return None
-	url = urlsplit(referrer)
-	path = url.path if len(url.path) > 0 else "/" 
+	url = urlsplit(url)
+	path = url.path if stringutils.isNotEmpty(url.path) else "/" 
 	# normalize referrers down to a path (get rid of query+fragment)
 	seed = "%s://%s%s" % (url.scheme, url.netloc, path)
 	return hashlib.md5(seed).hexdigest()
-
-def getIdFromRequest(request):
-    return request.get(settings.CHATROOM_ID_PARAM, None)
-
-def getNameFromRequest(request):
-	return escapeGet(request, settings.CHATROOM_NAME_PARAM, settings.ROOM_NAME_CHARACTER_LIMIT)
-	
-def getChatroomFromRequest(request):
-	return ChatroomFromJson(request.get('chatroom'))
-    
-def getMessageFromRequest(request):
-	message = escapeGet(request, settings.CHAT_MESSAGE_PARAM, settings.MESSAGE_CHARACTER_LIMIT)
-	alias = escapeGet(request, settings.CHAT_ALIAS_PARAM, settings.ALIAS_CHARACTER_LIMIT, settings.DEFAULT_CHAT_ALIAS)
-	return Message(alias, message)
 
 def getChatroom(id):
     chatroom = memcache.get(_cacheKey(id))
