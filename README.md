@@ -1,6 +1,5 @@
 TODO
 ====
-- Switch to Ajax POST with CORS through widget
 - Validation on saves
 - Test expired token
 - Add error handlers
@@ -25,8 +24,7 @@ TODO
 - Implement landing page
 - Host the app on App Engine
 - Purchase and link domain
-- Add to resume
-- Link on Azoffdesign
+- Update Azoffdesign, projects, etc.
 - Implement URL shortener
 - Implement optional word filter (names, aliases, messages)
 - Privatize project
