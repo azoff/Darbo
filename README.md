@@ -7,7 +7,7 @@ TODO
 - Validate saves with timestamps
 - Test token expiration recovery from the widget
 - Add error handlers
-  - http://code.google.com/appengine/docs/python/config/appconfig.html#Custom_Error_Responses
+  - <http://code.google.com/appengine/docs/python/config/appconfig.html#Custom_Error_Responses>
 - Create 2 more themes
 - Create an options menu
 - Put a theme switcher in the options menu
