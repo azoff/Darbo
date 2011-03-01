@@ -8,14 +8,12 @@ The PubSub transport is different locally vs. production. For some reason, AppEn
 
 TODO
 ====
-- Test token expiration recovery from the widget
-- Add new locales
-- Add a loader
 - Enable prod builtins
 - Add error handlers
   - <http://code.google.com/appengine/docs/python/config/appconfig.html#Custom_Error_Responses>
 - Create 2 more themes
 - Create an options menu
+- Add new locales
 - Put a theme switcher in the options menu
 - Create a bookmarklet
 - Create a mechanism to support public chatrooms on the destination site
@@ -27,6 +25,7 @@ TODO
   - Add reset secret option on secret generation link
 - Add trusted domains (based off of HTTP origin) to a CORS header
 - Create mechanism to show how to use script loader
+- Clean up/refactor loader
 - Mock up landing page
 - Implement landing page
 - Host the app on App Engine

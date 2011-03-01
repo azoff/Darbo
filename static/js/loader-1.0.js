@@ -26,6 +26,11 @@
      * The threshold on making the limiters invalid
      */
     LIMIT_THRESHOLD = 10,
+
+    /**
+     * The keycode for the return button
+     */
+	ENTER_KEYCODE = 13,
     
     /**
      * The timeout on hiding the limiter
@@ -164,7 +169,7 @@
                             // initialize the widget with the data
                             utils.wrap(darbo.initializeWidget,
                                 // open up the listener channel
-                                utils.wrap(darbo.openChannel, darbo.exposeCurrent)
+                                utils.wrap(darbo.openChannel, darbo.completeLoading)
                             )
                         )
                     )
@@ -288,9 +293,10 @@
             w.jQuery(w).bind("unload", onclose);
         },
         
-        exposeCurrent: function(user, widget) {
+        completeLoading: function(user, widget) {
             darbo.currentUser = user;
             darbo.currentWidget = widget;
+			widget.hideLoader();
         },
         
         onWindowClose: function(event, socket, id, domain) {
@@ -421,27 +427,27 @@
      */
     Widget = function(width, height, domain, template) {
         this.init = function(template) {
-            darbo._widget = this;
-            this._stylesheets = [];
             var alias = (new User()).getAlias() || "";
             this._element = w.jQuery(template);
-            if(width) { this._element.css("width", width); }
+			this._loader = this._element.find(".darbo-loader");
+			this._loaderContent = this._element.find(".darbo-loader-content");
+			if(width) { this._element.css("width", width); }
             if(height) { this._element.css("height", height); }
-            this._chatbox = this._element.find(".darbo-chatbox").scroll(this.getScrollHandler());
-            this._meta = this._element.find(".darbo-meta");
+            this._chatbox = this._loaderContent.find(".darbo-chatbox").scroll(this.getScrollHandler());
+            this._meta = this._loaderContent.find(".darbo-meta");
             this._participants = this._meta.find(".darbo-meta-particiant-count");
             this._name = this._meta.find(".darbo-meta-name");
-            this._logo = this._element.find(".darbo-logo").attr({href:domain});
             this._status = this._element.find(".darbo-status");
+			this._logo = this._status.find(".darbo-logo").attr({href:domain});            
             this._composeAlias = this._status.find(".darbo-compose-alias").keyup(this.getAliasHandler());
             if(alias) { this._composeAlias.val(alias); }
-            this._form = this._element.find(".darbo-form").submit(this.getSendHandler());            
+            this._form = this._loaderContent.find(".darbo-form").submit(this.getSendHandler());            
             this._composeMessage = this._form.find(".darbo-compose-message");
             this._chatTemplate = this._chatbox.find(".darbo-chat").removeClass("darbo-hidden").remove();
         };
         this.applyPlaceholders = function(form) {
             var active = d.activeElement, $ = w.jQuery;
-            this._element.find('[placeholder]').focus(function (elm) {
+            this._loaderContent.find('[placeholder]').focus(function (elm) {
                 elm = $(this); if (elm.attr('placeholder') !== '' && elm.val() == elm.attr('placeholder')) {
                     elm.val('').removeClass('darbo-placeholder');
                 }
@@ -452,37 +458,26 @@
             }).blur(); $(active).focus();
         };
         this.setTheme = function(domain, theme) {
-            var widget = this, url; 
+            var widget = this, url = darbo.getThemeUrl(domain, BASE_THEME); 
             if (!theme) { theme = DEFULAT_THEME; }
-            if (/[\.\/]/.test(theme)) { 
-                url = darbo.getThemeUrl(domain, BASE_THEME);
+            if (!widget._baseTheme) {
+				widget._baseTheme = utils.loadStylesheet(url);
+			}
+			if (/[\.\/]/.test(theme)) { 
+                url = theme;
             } else {
                 url = darbo.getThemeUrl(domain, theme);
-                theme = null;
             }
-            this.clearThemes();
-            widget.addTheme(utils.loadStylesheet(url));
-            if (theme) { // custom themes
-                widget.addTheme(utils.loadStylesheet(theme));
-            }
-        };
-        this.addTheme = function(theme) {
-            this._stylesheets.push(w.jQuery(theme));
-        };
-        this.clearThemes = function() {
-            if (this._stylesheets.length > 0) {
-                do { this._stylesheets.pop().remove(); } 
-                while (this._stylesheets.length > 0);
-            }
+            if (widget._customTheme) {
+				w.jQuery(widget._customTheme).remove();
+			}
+			widget._customTheme = utils.loadStylesheet(url);
         };
         this.applyMetaListeners = function() {
             var meta = this._meta, 
                 hide = function() { meta.fadeTo("fast", 0.25); },
                 show = function() { meta.fadeTo("fast", 1); };
-            this._element.mouseenter(hide);
-            this._status.mouseenter(show);
-            this._element.mouseleave(show);
-            this._status.mouseleave(hide);
+            this._element.hover(hide, show);
         };
         this.applyLimits = function(limits) {
             if (limits.alias) {
@@ -493,9 +488,8 @@
             }
         };
         this.bindLimiter = function(input, limit) {
-            var notif = input.siblings(".darbo-notif").hide(0).removeClass("darbo-hidden"),
-                timeout = null, 
-                checkLimit = function() {
+            var notif = input.siblings(".darbo-notif").hide(0),
+                timeout = null, checkLimit = function() {
                     var length = (input.hasClass("darbo-placeholder") ? 0 : w.jQuery.trim(input.val()).length),
                         delta = limit-length;
                     if (delta <= LIMIT_THRESHOLD) {
@@ -516,10 +510,10 @@
             input.bind("mousedown keyup change", function(){
                 var delta = checkLimit();
                 if (timeout) { clearTimeout(timeout); }
-                notif.text(delta).stop(true,true).fadeIn(0);
+                notif.text(delta).removeClass("darbo-hidden").stop(true,true).fadeIn(0);
                 timeout = setTimeout(fadeOut, LIMIT_TIMEOUT);
             }).blur(fadeOut);
-            checkLimit();
+            notif.text(checkLimit());
         };
         this.applyChatroomData = function(data) {
             var messages = data.chatroom.messages.sort(darbo.compareMessages),
@@ -574,14 +568,29 @@
         };
         this.getAliasHandler = function(script) {
             var widget = this;
-            return function() {
+            return function(e) {
                 var alias = w.jQuery.trim(widget._composeAlias.val()),
                     user = new User();
                 if (alias !== user.getAlias()) {
                     user.setAlias(alias).save();
                 }
+				if (e.keyCode === ENTER_KEYCODE) {
+					widget._composeMessage.focus();
+				}
             };
         };
+		this.hideLoader = function() {
+			var widget = this;
+			widget._loader.stop(true, true).fadeOut("fast", function(){
+				widget._loaderContent.stop(true, true).fadeIn("fast");
+			});
+		};
+		this.showLoader = function() {
+			var widget = this;
+			widget._loaderContent.stop(true, true).fadeOut("fast", function(){
+				widget._loader.stop(true, true).fadeIn("fast");
+			});
+		};
         this.getSendHandler = function() {
             var widget = this;
             return function(e) {

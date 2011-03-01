@@ -15,7 +15,7 @@ class AssetHandler(BaseHandler):
 	def serveAsset(self, path, timeout=settings.ASSET_CACHE_WINDOW):
 		cacheKey = self.getCacheKey(path, self.assetVersion)
 		asset = memcache.get(cacheKey)
-		if stringutils.isEmpty(asset):
+		if stringutils.isEmpty(asset) or not settings.CACHE_ASSETS:
 			if os.path.exists(path):
 				asset = open(path).read()
 				if stringutils.isNotEmpty(asset):

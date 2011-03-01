@@ -24,11 +24,14 @@ html[xmlns] .darbo-clearfix {
 .darbo-hidden { display: none !important; }
 
 .darbo-meta { position: absolute; width: 96%; z-index: 99; padding: 1% 2%; }
-.darbo-widget { width: 100%; height: 100%; position: relative; }
+.darbo-widget, .darbo-loader-content { width: 100%; height: 100%; position: relative; }
 .darbo-chatbox { list-style: none; padding: 0; margin: 0; height: 80%; overflow: auto; }
 .darbo-form, .darbo-status { display: block; padding: 1% 2%; }
 .darbo-notif,
 .darbo-chat { display: block; }
+.darbo-logo-outline { text-align: center; font-size: 2em; }
+.darbo-loader { margin-top: 40%; }
+.darbo-loader-animation { width: 20em; font-size: 50%; display: block; margin: 0 auto; }
 .darbo-compose-message, .darbo-logo, 
 .darbo-alias, .darbo-message,
 .darbo-meta-welcome, 

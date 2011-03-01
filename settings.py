@@ -3,6 +3,9 @@ import os
 # used for debugging
 IS_DEV_MODE = os.environ['SERVER_SOFTWARE'].startswith('Dev');
 
+# use caching for assets
+CACHE_ASSETS = False
+
 # the number of characters allowed in a message
 MESSAGE_CHARACTER_LIMIT = 200
 

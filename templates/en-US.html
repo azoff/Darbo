@@ -1,24 +1,31 @@
 <div locale="en-US" class="darbo-widget">
-    <div class="darbo-status darbo-clearfix">
-        <a class="darbo-logo">&lt;darbo&gt;</a>
-        <input type="text" class="darbo-compose-alias" />        
-        <div class="darbo-hidden darbo-notif darbo-notif-alias"></div>
-    </div>
-    <div class="darbo-meta darbo-clearfix">
-        <div class="darbo-meta-welcome darbo-hidden">Room: <strong class="darbo-meta-name"></strong></div>
-        <div class="darbo-meta-particiants"><strong class="darbo-meta-particiant-count">0</strong> Active</div>
-    </div>
-    <ul class="darbo-chatbox">
-        <li class="darbo-hidden darbo-chat darbo-clearfix">            
-            <div class="darbo-message">
-                <p class="darbo-message-content"></p>
-            </div>
-            <div class="darbo-alias"></div>
-        </li>
-    </ul>
-    <form class="darbo-form darbo-clearfix">        
-        <input type="text" class="darbo-compose-message" placeholder="Type your message..."/>        
-        <div class="darbo-hidden darbo-notif darbo-notif-message"></div>
-        <input type="submit" class="darbo-send-message" value="Send"/>
-    </form>
+    <div class="darbo-loader">
+		<marquee class="darbo-loader-animation" direction="right">loading</marquee>
+		<div class="darbo-logo-outline">&lt;darbo&gt;</div>
+		<marquee class="darbo-loader-animation" direction="left">loading</marquee>
+	</div>
+	<div class="darbo-loader-content" style="display:none">
+		<div class="darbo-status darbo-clearfix">
+	        <a class="darbo-logo">&lt;darbo&gt;</a>
+	        <input type="text" class="darbo-compose-alias" />        
+	        <div class="darbo-hidden darbo-notif darbo-notif-alias"></div>
+	    </div>
+	    <div class="darbo-meta darbo-clearfix">
+	        <div class="darbo-meta-welcome darbo-hidden">Room: <strong class="darbo-meta-name"></strong></div>
+	        <div class="darbo-meta-particiants"><strong class="darbo-meta-particiant-count">0</strong> Active</div>
+	    </div>
+	    <ul class="darbo-chatbox">
+	        <li class="darbo-hidden darbo-chat darbo-clearfix">            
+	            <div class="darbo-message">
+	                <p class="darbo-message-content"></p>
+	            </div>
+	            <div class="darbo-alias"></div>
+	        </li>
+	    </ul>
+	    <form class="darbo-form darbo-clearfix">        
+	        <input type="text" class="darbo-compose-message" placeholder="Type your message..."/>        
+	        <div class="darbo-hidden darbo-notif darbo-notif-message"></div>
+	        <input type="submit" class="darbo-send-message" value="Send"/>
+	    </form>
+	</div>
 </div>
