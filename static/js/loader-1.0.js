@@ -211,11 +211,11 @@
 
 		apiCall: function(domain, action, args, callback) {
 			darbo.serverCall(domain, API_NAMESPACE, action, args, function(response){
-				var status = response ? w.JSON.parse(response) : {error:'no response'};
+				var status = response ? w.JSON.parse(response) : false;
 				if (!status) {
 					utils.error("API did not return a valid response for '" + action + "', raw response: " + response);
 				} else if (status.error && !status.expired) {
-					utils.error("API returned an error for '" + action + "', error details: " + status.error);
+					utils.error("API returned HTTP " + status.status + " status for '" + action + "', error details: " + status.error);
 				} else {
 					callback(status);
 				}
@@ -248,13 +248,24 @@
             return domain + THEME_PATH + theme + "?v=" + VERSION;
         },
         
-        joinChatroom: function(script, domain, widget, callback) {
-            var args = { room: script.attr("room"), name: script.attr("name") },
-                user = new User();
+        joinChatroom: function(obj, domain, widget, callback) {
+            var user = new User(), args = { token: user.getToken() };
+			if (arguments.length > 3) {
+				args.room = obj.attr("room");
+				args.name = obj.attr("name");
+			} else { // this is a refresh call (needs a refactor)
+				callback = widget;
+				widget = null;
+				args.room = obj;
+			}
             darbo.apiCall(domain, 'join', args, function(status) {
                 user.setToken(status.token).save();
                 callback(domain, widget, status);
             });
+        },
+
+        refreshToken: function(id, domain, callback) {
+            darbo.joinChatroom(id, domain, callback);
         },
         
         initializeWidget: function(domain, widget, status, callback) {
@@ -308,10 +319,6 @@
             }
         },
         
-        refreshToken: function(id, domain, callback) {
-            darbo.joinChatroom(id, domain, null, callback);
-        },
-        
         getMesaageReciever: function(widget) {
             return function(response) {
                 var status = w.JSON.parse(response.data);
@@ -330,7 +337,7 @@
                 args.alias = user.getAlias();
                 args.message = message;
                 darbo.apiCall(domain, 'talk', args, function(status) {
-                    if (status.expired) {
+                    if (status.expired) { // try to recover gracefully, once
                         darbo.refreshToken(id, domain, function(){
                             talkHandler(message, callback);
                         });
@@ -497,16 +504,16 @@
                         notif.removeClass("darbo-invalid");                    
                     }
                     if (delta < 0) {
-                        input.addClass("darbo-invalid");
+                        input.addClass("darbo-invalid").data("delta", delta);
                     } else {
-                        input.removeClass("darbo-invalid");
+                        input.removeClass("darbo-invalid").data("delta", null);
                     }
                     return delta;
                 }, fadeOut = function(){ 
                     notif.stop(true,true).fadeOut("fast");
                     clearTimeout(timeout); timeout = null;  
                 };
-            input.bind("mousedown keyup", function(){
+            input.bind("mousedown keyup change", function(){
                 var delta = checkLimit();
                 if (timeout) { clearTimeout(timeout); }
                 notif.text(delta).stop(true,true).fadeIn(0);
@@ -578,18 +585,19 @@
         this.getSendHandler = function() {
             var widget = this;
             return function(e) {
+				var input = widget._composeMessage,
+					message = widget._composeMessage.val();
                 e.preventDefault();
                 if (utils.hasProperty(widget, '_talkHandler')) {
                     // clear placeholders
-                    if (!widget._composeMessage.hasClass("darbo-placeholder")
-                            && widget._composeMessage.val().length > 0) {
-                        widget._talkHandler(widget._composeMessage.val(), function(status) {
-                            if (status.error) {
-                                utils.error(status.error);                                
-                            } else {
-                                widget.addMessage(status, {isUser:true,animate:true});
-                                widget._composeMessage.removeClass("darbo-invalid").val("");
-                            }
+                    if (!input.hasClass("darbo-placeholder") && message.length > 0) {
+                        widget._talkHandler(message, function(status) {
+                            widget.addMessage(status, {isUser:true,animate:true});
+                            if (input.hasClass("darbo-invalid")) {
+								message = message.substr(message.length + parseInt(input.data("delta"), 10));
+								input.removeClass("darbo-invalid");
+							} else { message = ""; }
+							widget._composeMessage.val(message).mousedown();
                         });
                     }   
                 }

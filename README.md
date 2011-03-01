@@ -2,10 +2,16 @@ SETUP
 =====
 It's an app-engine app, so you'll need the bootstrapper to run it. You can download the official distributable from here: <http://code.google.com/appengine/downloads.html>. You'll also need to add an entry to your host file: `local.dar.bo 127.0.0.1`. Finally run the server from wherever you clone the project from, then point your browser at `http://localhost:1061`. Why not `http://local.dar.bo:1061`? Well because by running the project from a different domain, I can actually verify that the bootstrapper is working for cross-domain requests. Enjoy!
 
+NOTE
+====
+The PubSub transport is different locally vs. production. For some reason, AppEngine uses a polling mechanism to receive updates. Because it was really annoying, I increased the interval delta between polls to reduce CPU usage etc. As a result, you may not see a very pleasing real-time experience when dev'ing locally. If you want to drop the interval to a more rapid pace, seek out `POLLING_TIMEOUT_MS` in the loader javascript.
+
 TODO
 ====
-- Validate saves with timestamps
 - Test token expiration recovery from the widget
+- Add new locales
+- Add a loader
+- Enable prod builtins
 - Add error handlers
   - <http://code.google.com/appengine/docs/python/config/appconfig.html#Custom_Error_Responses>
 - Create 2 more themes

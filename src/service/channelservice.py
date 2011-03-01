@@ -3,6 +3,7 @@ from time import time
 from django.utils import simplejson
 from google.appengine.api import memcache, channel
 from src.model import Chatroom, Session, SessionFromLiteral
+from src.utils import stringutils
 
 def _cacheKey(id):
     return ("Channels.%s" % id)
@@ -51,7 +52,7 @@ def createToken(id):
 	
 def isValidToken(id, token, active=False):
 	sessions, count = _getSessions(id)
-	valid = (token is not None) and (token in sessions)
+	valid = stringutils.isNotEmpty(token) and sessions.has_key(token)
 	if active:
 		active = valid and sessions[token].isActive()
 		return valid and active
