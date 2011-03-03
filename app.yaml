@@ -3,36 +3,43 @@ version: 1
 runtime: python
 api_version: 1
 
+builtins:
+  - admin_redirect: on
+  - datastore_admin: on
+  - appstats: on
+
 handlers:
-
-- url: /api/.*
-  script: src/api.py
+  - url: /api/.*
+    script: src/api.py
   
-- url: /assets/.*
-  script: src/assets.py
+  - url: /assets/.*
+    script: src/assets.py
 
-- url: /load/([0-9\.]+)
-  static_files: static/js/loader-\1.js
-# static_files: static/js/loader-\1.min.js  
-  upload: /static/
+  - url: /load/([0-9\.]+)
+    static_files: static/js/loader-\1.js
+    # static_files: static/js/loader-\1.min.js  
+    upload: /static/
 
-- url: /load
-  static_files: static/js/loader.js
-# static_files: static/js/loader.min.js  
-  upload: /static/
+  - url: /load
+    static_files: static/js/loader.js
+    # static_files: static/js/loader.min.js  
+    upload: /static/
 
-- url: /theme/([^\?]+)
-  static_files: static/css/widget-\1.css
-  upload: /static/
+  - url: /theme/([^\?]+)
+    static_files: static/css/widget-\1.css
+    upload: /static/
 
-- url: /static/(.*)
-  static_files: static/\1
-  upload: /static/
+  - url: /static/(.*)
+    static_files: static/\1
+    upload: /static/
   
-- url: /
-  static_files: static/html/index.html
-  upload: /static/
+  - url: /
+    static_files: static/html/index.html
+    upload: /static/
   
-- url: .*
-  static_files: static/html/404.html
-  upload: /static/
+  - url: .*
+    static_files: static/html/404.html
+    upload: /static/
+  
+error_handlers:
+  - file: error.html

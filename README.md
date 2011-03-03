@@ -8,9 +8,6 @@ The PubSub transport is different locally vs. production. For some reason, AppEn
 
 TODO
 ====
-- Enable prod builtins
-- Add error handlers
-  - <http://code.google.com/appengine/docs/python/config/appconfig.html#Custom_Error_Responses>
 - Create 2 more themes
 - Create an options menu
 - Add new locales
@@ -26,8 +23,11 @@ TODO
 - Add trusted domains (based off of HTTP origin) to a CORS header
 - Create mechanism to show how to use script loader
 - Clean up/refactor loader
-- Mock up landing page
-- Implement landing page
+- Create Mockups
+  - Landing Page (Index)
+  - 404 Page
+  - Error Page
+- Implement Mockups
 - Host the app on App Engine
 - Purchase and link domain
 - Update Azoffdesign, projects, etc.
@@ -35,6 +35,11 @@ TODO
 - Implement optional word filter (names, aliases, messages)
 - Privatize project
 - Implement HTTPS
+
+EXTENDING THE ADMIN PAGE
+========================
+- Need to add administrative functionality?
+  - <http://code.google.com/appengine/docs/python/config/appconfig.html#Administration_Console_Custom_Pages>
 
 API KEY ENTRY
 =============

@@ -62,6 +62,9 @@ def isValidToken(id, token, active=False):
 def updateParticipantCount(id, userToken):
 	sendMessage(id, userToken)
 
+#TODO: profile this method to see if it is not as fast as I assumed it is
+# its possible that sending a message is synchronous. If it is, we can
+# probably defer the send: http://code.google.com/appengine/articles/deferred.html
 def sendMessage(id, userToken, msg = None):
 	sessions, participants = _getSessions(id)
 	msgData = {'participants':participants}
