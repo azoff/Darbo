@@ -9,8 +9,8 @@ The PubSub transport is different locally vs. production. For some reason, AppEn
 TODO
 ====
 - Create 2 more themes
+- Add French and Spanish locales
 - Create an options menu
-- Add new locales
 - Put a theme switcher in the options menu
 - Create a bookmarklet
 - Create a mechanism to support public chatrooms on the destination site
