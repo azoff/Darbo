@@ -10,8 +10,7 @@ TODO
 ====
 - Create 2 more themes
 - Add French and Spanish locales
-- Create an options menu
-- Put a theme switcher in the options menu
+- Add onload callback
 - Create a bookmarklet
 - Create a mechanism to support public chatrooms on the destination site
 - Create a mechanism to generate api keys based off of trusted domains

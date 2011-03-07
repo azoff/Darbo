@@ -1,0 +1,190 @@
+.darbo-widget { font-family: Helvetica; }
+
+.darbo-notif { 
+	background-color: #FFF; 
+	border: solid 0.1em #CCC;
+	-moz-border-radius: 0.2em;
+    -webkit-border-radius: 0.2em;
+    border-radius: 0.2em;
+	padding: 0 0.2em;
+	margin: 0.3em 0;
+	line-height: 1.5em;
+	font-size: 80%;
+	color: #7787A1;
+}
+
+.darbo-compose-message.darbo-invalid,
+.darbo-notif.darbo-invalid {
+	border-color: #EF9926;
+	background-color: #EF9926;
+	color: #FFF;
+}
+
+.darbo-status {
+	border: solid 0.1em #475884;
+    background-color: #445CA4;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5B81D1', endColorstr='#445CA4');
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#5B81D1), color-stop(45%, #5076CF), color-stop(45%, #4A6FC8), to(#445CA4)); 
+    background-image: -moz-linear-gradient(top,  #5B81D1 0, #5076CF 45%, #4A6FC8 45%, #445CA4 100%);
+}
+
+.darbo-logo { color: #EEE; }
+.darbo-logo:hover { color: #FFF; }
+
+.darbo-compose-alias {
+	text-align: right;
+    -moz-border-radius: 0.2em;
+    -webkit-border-radius: 0.2em;
+    border-radius: 0.2em;
+	border: solid 0.1em transparent;
+	border-bottom-width: 0.15em;
+	padding: 0.2em;
+	line-height: 100%;
+	font-size: 100%;
+	width: 55%;
+	background-color: transparent;
+	color: #FFF;
+}
+
+.darbo-compose-message:hover,
+.darbo-compose-alias:hover,
+.darbo-compose-message:focus,
+.darbo-compose-alias:focus {
+	border-color: #8F8F8F;
+	background-color: #FFF;
+	color: #000;
+}
+
+.darbo-compose-message:focus,
+.darbo-compose-alias:focus {
+	border-color: #EF9926;
+}
+
+.darbo-notif-alias {
+	margin-right: -0.5em;
+}
+
+.darbo-compose-alias.darbo-invalid {
+	background-color: #EFE1C9;
+}
+
+.darbo-meta {
+	color: #2F509D;
+	font-size: 70%;
+	padding-bottom: 0.1em;
+	background-color: #D0DFF6;
+	border-bottom: solid 0.3em #BABEC1;
+}
+
+.darbo-chatbox {
+	border: solid 0.1em #DCDCDC;
+	border-top-width: 0;
+}
+
+.darbo-chat {
+	margin: 1em 0.5em;
+}
+
+.darbo-alias { 
+	font-size: 80%;
+	margin-top: 0.7em;
+	color: #333;
+}
+
+.darbo-user .darbo-alias {
+	float: right;
+}
+
+.darbo-message {
+	border: solid 0.15em #7E96B0;
+	background-color: #EEF5FD;
+    -moz-border-radius: 0.5em;
+    -webkit-border-radius: 0.5em;
+    border-radius: 0.5em;
+	font-size: 100%;
+	max-width: 97%;
+	margin-left: 0.1em;
+}
+
+.darbo-message:after {
+	content:".";
+	margin: 0 0 -2em 1em;
+	position: relative;
+	color: #EEF5FD;
+	width: 0.5em;
+	height: 0.5em;
+	line-height: 100%;
+	float: left;
+	display: block;
+	border: solid 0.15em #7E96B0;
+	border-top-width: 0;
+	-moz-border-radius-bottomright: 8em;
+	-webkit-border-bottom-right-radius: 8em;
+	border-bottom-right-radius: 8em;
+	background-color: #EEF5FD;
+}
+
+.darbo-user .darbo-message {
+	background-color: #EDF6E1;
+	border-color: #8FA960;
+	margin-right: 0.1em;
+	margin-left: 0;
+	float: right;
+}
+
+.darbo-user .darbo-message:after {
+	content:".";
+	margin: 0 1em -2em 0;
+	color: #EDF6E1;	
+	float: right;
+	display: block;
+	border-color: #8FA960;
+	-moz-border-radius-bottomright: 0;
+	-webkit-border-bottom-right-radius: 0;
+	border-bottom-right-radius: 0;
+	-moz-border-radius-bottomleft: 8em;
+	-webkit-border-bottom-left-radius: 8em;
+	border-bottom-left-radius: 8em;
+	background-color: #EDF6E1;
+}
+
+.darbo-message-content {
+	margin:0; 
+	padding: 0.5em 1em; 
+	line-height: 120%;
+}
+
+.darbo-form {
+	background-color: #D0DFF6;
+	border: solid 0.1em #DCDCDC;
+}
+
+.darbo-compose-message {
+    -moz-border-radius: 0.2em;
+    -webkit-border-radius: 0.2em;
+    border-radius: 0.2em;
+	border: solid 0.15em #8F8F8F;
+	padding: 0.2em;
+	line-height: 100%;
+	font-size: 100%;
+	width: 65%;
+	color: #000;
+}
+
+.darbo-notif-message { margin-left: -0.5em; }
+
+.darbo-send-message {
+	cursor: pointer;
+	padding: 0.4em 1em;
+	font-size: 80%;
+	line-height: 100%;
+	border: solid #BBC3C6 0.1em;
+    -moz-border-radius: 0.2em;
+    -webkit-border-radius: 0.2em;
+    border-radius: 0.2em;
+	color: #2F509D;
+	background-color: #D7DBDC;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FBFCFD', endColorstr='#D7DBDC');
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFCFD), to(#D7DBDC)); 
+    background-image: -moz-linear-gradient(top,  #FBFCFD 0, #D7DBDC 100%);
+}

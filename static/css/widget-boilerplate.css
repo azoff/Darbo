@@ -1,0 +1,39 @@
+.darbo-widget {}
+
+.darbo-notif {}
+.darbo-notif.darbo-invalid {}
+
+.darbo-status {}
+
+.darbo-logo {}
+
+.darbo-compose-alias {}
+.darbo-compose-alias.darbo-invalid {}
+
+.darbo-notif-alias {}
+
+.darbo-meta {}
+
+.darbo-meta-name {}
+.darbo-meta-participant-count {}
+
+.darbo-chatbox {}
+
+.darbo-chat {}
+
+.darbo-alias {}
+.darbo-user .darbo-alias {}
+
+.darbo-message {}
+.darbo-user .darbo-message {}
+
+.darbo-message-content {}
+
+.darbo-form {}
+
+.darbo-compose-message {}
+.darbo-compose-message.darbo-invalid {}
+
+.darbo-notif-message {}
+
+.darbo-send-message {}

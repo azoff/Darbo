@@ -1,7 +1,6 @@
 .darbo-logo {
     text-decoration: none;
     color: #EEEEEE;
-    padding: 1% 0;
 }
 
 .darbo-logo:hover {
@@ -55,23 +54,7 @@
     color: #FFD2D8;
 }
 
-.darbo-compose-alias {
-    background: none transparent;
-    border: none 0;
-    padding: 0;
-    margin: 0;
-    display: block;
-    font-size: 100%;
-    line-height: 100%;
-    padding: 0.2em;
-    height: 100%;
-    font-weight: bold;
-    text-align: right;
-    color: #FFF;
-    width: 55%;
-    text-shadow: #4B535E 0 -0.1em 0;
-}
-
+.darbo-compose-alias,
 .darbo-compose-alias:hover,
 .darbo-compose-alias:focus,
 .darbo-compose-alias.darbo-invalid,
@@ -95,6 +78,15 @@
     border-radius: 1em;
     padding: 0.1em 1em;
     width: 55%;
+}
+
+.darbo-compose-alias {
+	text-align: right;
+	background-color: transparent;
+	border-color: transparent;
+	color: #FFF;
+	text-shadow: #4B535E 0 -0.1em 0;
+	padding-right: 0;
 }
 
 .darbo-compose-alias.darbo-invalid,
@@ -142,7 +134,10 @@
     background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#92D841), color-stop(80%, #92D841), to(#B2E74E)); 
     /* for firefox 3.6+ */
     background-image: -moz-linear-gradient(top,  #92D841 0, #92D841 80%, #B2E74E 100%);
+	float: right;
 }
+
+.darbo-user .darbo-alias { float: right; }
 
 .darbo-message:before {
 	content:".";

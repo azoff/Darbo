@@ -21,11 +21,6 @@
      * The template markup key
      */
     TEMPLATE_KEY = 'darbo-template-',
-    
-    /**
-     * The threshold on making the limiters invalid
-     */
-    LIMIT_THRESHOLD = 10,
 
     /**
      * The keycode for the return button
@@ -492,14 +487,11 @@
                 timeout = null, checkLimit = function() {
                     var length = (input.hasClass("darbo-placeholder") ? 0 : w.jQuery.trim(input.val()).length),
                         delta = limit-length;
-                    if (delta <= LIMIT_THRESHOLD) {
-                        notif.addClass("darbo-invalid");
-                    } else {
-                        notif.removeClass("darbo-invalid");                    
-                    }
                     if (delta < 0) {
+						notif.addClass("darbo-invalid");
                         input.addClass("darbo-invalid").data("delta", delta);
                     } else {
+						notif.removeClass("darbo-invalid");
                         input.removeClass("darbo-invalid").data("delta", null);
                     }
                     return delta;
