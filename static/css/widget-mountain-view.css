@@ -108,7 +108,7 @@
 
 .darbo-message:after {
 	content:".";
-	margin: 0 0 -2em 1em;
+	margin: 0 0 -2em 0.5em;
 	position: relative;
 	color: #EEF5FD;
 	width: 0.5em;
@@ -134,7 +134,7 @@
 
 .darbo-user .darbo-message:after {
 	content:".";
-	margin: 0 1em -2em 0;
+	margin: 0 0.5em -2em 0;
 	color: #EDF6E1;	
 	float: right;
 	display: block;

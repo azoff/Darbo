@@ -8,7 +8,6 @@ The PubSub transport is different locally vs. production. For some reason, AppEn
 
 TODO
 ====
-- Create 2 more themes
 - Add French and Spanish locales
 - Add onload callback
 - Create a bookmarklet

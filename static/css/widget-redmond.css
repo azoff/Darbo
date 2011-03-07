@@ -1,0 +1,111 @@
+.darbo-widget { font-family: Helvetica; }
+
+.darbo-notif { font-size: 65%; color:#FFF; margin: 2.5% 2% 0; }
+.darbo-notif.darbo-invalid { color: #FFA200; }
+
+.darbo-status { background-color: #000; }
+
+.darbo-logo { color: #EEE; }
+.darbo-logo:hover { color: #FFF; }
+
+.darbo-compose-message,
+.darbo-compose-alias {
+	-moz-border-radius: 0;
+    -webkit-border-radius: 0;
+    border-radius: 0;
+	border: none 0;
+	padding: 0.2em 0.3em;
+	font-size: 100%;
+	line-height: 120%;
+	color: #FFF;
+	font-weight: bold;
+	background-color: transparent;
+	text-align: right;
+	width: 55%;
+}
+
+.darbo-compose-message,
+.darbo-compose-alias:hover,
+.darbo-compose-alias:focus {
+	background-color: #FFF;
+	color: #333;
+}
+.darbo-compose-message {
+	text-align: left;
+	width: 65%;
+}
+.darbo-compose-message.darbo-invalid,
+.darbo-compose-alias.darbo-invalid {
+	background-color: #DDD;
+}
+
+.darbo-notif-alias {}
+
+.darbo-meta { background-color: #000; color: #FFF; font-size: 65%; }
+
+.darbo-meta-name {}
+.darbo-meta-participant-count {}
+
+.darbo-chatbox { background-color: #000; }
+
+.darbo-chat {
+	padding: 0.5em 0.7em;
+}
+
+.darbo-alias { color: #2E4F76; font-size: 75%; margin-top: 1em; }
+.darbo-user .darbo-alias { float: right; color: #E18E00; }
+
+.darbo-message { 
+	color: #FFF; 
+	background-color: #619EE7; 
+	margin: 0 0.5em;
+	max-width: 80%;
+}
+.darbo-message:after {
+	content:"";
+	display:block;
+	position: relative;
+	float: left;
+	margin: 0 0 -1em 0.5em;
+	width:0;
+	height:0;
+	border-width: 0.5em 0.5em 0 0;
+	border-style:solid;
+	border-color: #619EE7 transparent;
+}
+.darbo-user .darbo-message { 
+	float: right; 
+	background-color: #FFA200;
+}
+.darbo-user .darbo-message:after {
+	float: right;
+	margin: 0 0.5em -1em 0;
+	width:0;
+	height:0;
+	border-width: 0.5em 0 0 0.5em;
+	border-style:solid;
+	border-color: #FFA200 transparent;
+}
+.darbo-message-content { 
+	padding: 0.4em 0.6em; 
+	line-height: 120%; 
+	font-size: 90%; 
+	margin: 0;
+}
+
+.darbo-form { background-color: #191C18; border-top: solid 0.1em #1A1D19; }
+
+.darbo-notif-message {}
+
+.darbo-send-message {
+	-moz-border-radius: 0;
+    -webkit-border-radius: 0;
+    border-radius: 0;
+	border: none 0;
+	padding: 0.13em 0.3em;
+	font-size: 100%;
+	line-height: 100%;
+	color: #FFF;
+	font-weight: bold;
+	background-color: #474747;
+}
