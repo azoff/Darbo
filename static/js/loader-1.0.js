@@ -511,7 +511,6 @@
             var messages = data.chatroom.messages.sort(darbo.compareMessages),
                 widget = this;
             widget._element.attr("room", data.chatroom.id);
-            widget._composeAlias.attr("placeholder", data.settings.defaults.alias);
             if (data.chatroom.name) {
                 widget._name.text(data.chatroom.name).parent().removeClass("darbo-hidden");
             }
@@ -563,9 +562,12 @@
             return function(e) {
                 var alias = w.jQuery.trim(widget._composeAlias.val()),
                     user = new User();
-                if (alias !== user.getAlias()) {
+                if (alias.length == 0) {
+					alias = widget._composeAlias.attr("placeholder");
+				}
+				if (alias !== user.getAlias()) {
                     user.setAlias(alias).save();
-                }
+                } 
 				if (e.keyCode === ENTER_KEYCODE) {
 					widget._composeMessage.focus();
 				}

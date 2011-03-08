@@ -9,7 +9,7 @@ The PubSub transport is different locally vs. production. For some reason, AppEn
 TODO
 ====
 - Add French and Spanish locales
-- Add onload callback
+- Switch to data attributes
 - Create a bookmarklet
 - Create a mechanism to support public chatrooms on the destination site
 - Create a mechanism to generate api keys based off of trusted domains

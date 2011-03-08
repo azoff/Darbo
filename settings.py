@@ -84,8 +84,5 @@ def getClientSettings():
 		"limits": {
 			"message": MESSAGE_CHARACTER_LIMIT,
 			"alias": ALIAS_CHARACTER_LIMIT
-		},
-		"defaults": {
-			"alias": DEFAULT_CHAT_ALIAS
 		}
 	}

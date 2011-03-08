@@ -77,7 +77,7 @@
     /* CSS3 */
     border-radius: 1em;
     padding: 0.1em 1em;
-    width: 55%;
+    width: 50%;
 }
 
 .darbo-compose-alias {
@@ -225,11 +225,9 @@
 
 .darbo-send-message {
     height: 75%;
-    width: 25%;
     cursor: pointer;
     font-size: 100%;
     line-height: 100%;
-    max-width: 6em;
     border: solid 0.1em #4A6293;
     border-width: 0.15em 0.15em 0.1em 0.1em;
     font-weight: bold;

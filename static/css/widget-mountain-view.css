@@ -41,7 +41,7 @@
 	padding: 0.2em;
 	line-height: 100%;
 	font-size: 100%;
-	width: 55%;
+	width: 50%;
 	background-color: transparent;
 	color: #FFF;
 }
@@ -107,7 +107,7 @@
 }
 
 .darbo-message:after {
-	content:".";
+	content:"";
 	margin: 0 0 -2em 0.5em;
 	position: relative;
 	color: #EEF5FD;
@@ -133,7 +133,6 @@
 }
 
 .darbo-user .darbo-message:after {
-	content:".";
 	margin: 0 0.5em -2em 0;
 	color: #EDF6E1;	
 	float: right;
@@ -167,8 +166,12 @@
 	padding: 0.2em;
 	line-height: 100%;
 	font-size: 100%;
-	width: 65%;
+	width: 50%;
 	color: #000;
+}
+
+.darbo-compose-message.darbo-placeholder {
+	color: #666;
 }
 
 .darbo-notif-message { margin-left: -0.5em; }

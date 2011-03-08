@@ -21,7 +21,7 @@
 	font-weight: bold;
 	background-color: transparent;
 	text-align: right;
-	width: 55%;
+	width: 50%;
 }
 
 .darbo-compose-message,
@@ -30,9 +30,11 @@
 	background-color: #FFF;
 	color: #333;
 }
+.darbo-compose-message.darbo-placeholder {
+	color: #666;
+}
 .darbo-compose-message {
 	text-align: left;
-	width: 65%;
 }
 .darbo-compose-message.darbo-invalid,
 .darbo-compose-alias.darbo-invalid {
