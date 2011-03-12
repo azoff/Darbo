@@ -39,7 +39,7 @@
 
     
     /**
-     * Cache teh widget template in the browser
+     * Cache the widget template in the browser
      */
     CLIENT_CACHE_TEMPLATE = false,
     

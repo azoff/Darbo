@@ -9,8 +9,11 @@
         <meta name="description" content="A free and simple chatroom">
         <meta name="keywords" content="chat">
         <link rel="shortcut icon" href="/static/misc/favicon.ico">
+		<link rel="stylesheet" media="screen,projection" href="/static/css/index.css">
+		<script src='/static/js/head.load.min.js'></script>
     </head>
     <body>
+		
 		<script 
 			id="darbo"
 			room=""
@@ -20,6 +23,23 @@
 			theme="redmond"
 			locale=""
 			src='http://localhost:1061/load_debug'>
+		</script>
+		
+		<form id="keygen" method="POST" action="/api/keygen">
+			<span class="message"></span>
+			<h2>Generate A Public API Key</h2>
+			<label for="keygen-domain">Domain:</label>
+			<input type="text" id="keygen-domain" name="domain" class="has-placeholder" placeholder="e.g. my-domain.com" />
+			<small>If you wish to cover multiple subdomains, just make sure to provide the lowest-common, base domain. For instance, <samp>sub.domain.com</samp> can be covered by providing <samp>domain.com</samp></small>
+			<label for="keygen-domain">Email Address:</label>
+			<input type="text" id="keygen-email" name="email" class="has-placeholder" placeholder="e.g. john@doe.com" />			
+			<input type="submit" id="keygen-submit" value="Apply" />			
+		</form>
+		
+		<script>
+		head.js("/static/js/jquery-1.5.min.js", "/static/js/index.js", function(){
+
+		});
 		</script>
     </body>
 </html>

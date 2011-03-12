@@ -1,0 +1,5 @@
+#keygen { width: 10em; }
+#keygen label, small, span, input { display: block; }
+#keygen h2 { padding: 0; margin: 0; }
+#keygen label { padding-top: 1em; }
+#keygen-submit { float: right; margin-top: 1em; }

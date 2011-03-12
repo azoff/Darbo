@@ -8,7 +8,10 @@ The PubSub transport is different locally vs. production. For some reason, AppEn
 
 TODO
 ====
-- Create a mechanism to generate api keys based off of trusted domains
+- Create an api key model class
+- Create an api key service class
+- Create an api key handler
+- Wire up api key form to the api key handler
 - Update the activation link to show support link on deactivation
 - Handle API cases for secret deactivation
 - Handle widget cases for deactivation
