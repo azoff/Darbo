@@ -15,14 +15,20 @@ handlers:
   - url: /assets/.*
     script: src/assets.py
 
-  - url: /load/([0-9\.]+)
+  - url: /load_debug/([0-9\.]+)
     static_files: static/js/loader-\1.js
-    # static_files: static/js/loader-\1.min.js  
+    upload: /static/
+
+  - url: /load_debug
+    static_files: static/js/loader.js
+    upload: /static/
+
+  - url: /load/([0-9\.]+)
+    static_files: static/js/loader-\1.min.js
     upload: /static/
 
   - url: /load
-    static_files: static/js/loader.js
-    # static_files: static/js/loader.min.js  
+    static_files: static/js/loader.min.js
     upload: /static/
 
   - url: /theme/([^\?]+)

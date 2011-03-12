@@ -325,7 +325,7 @@
                 var status = w.JSON.parse(response.data);
                 widget.setParticipants(status.participants);
                 if (status.msg) {
-                    widget.addMessage(status.msg, {animate:true});
+                    widget.addMessage(status.msg, { animate: "fast" });
                 }
             };
         },
@@ -428,7 +428,7 @@
 			this._loaderContent = this._element.find(".darbo-loader-content");
 			if(width) { this._element.css("width", width); }
             if(height) { this._element.css("height", height); }
-            this._chatbox = this._loaderContent.find(".darbo-chatbox").scroll(this.getScrollHandler());
+            this._chatbox = this._loaderContent.find(".darbo-chatbox");
             this._meta = this._loaderContent.find(".darbo-meta");
             this._participants = this._meta.find(".darbo-meta-particiant-count");
             this._name = this._meta.find(".darbo-meta-name");
@@ -518,7 +518,6 @@
             w.jQuery.each(messages, function(i, message){
                widget.addMessage(message);
             });
-            widget.scrollToBottom();
             widget.applyLimits(data.settings.limits);
             widget.applyPlaceholders();
             widget.applyMetaListeners();
@@ -532,37 +531,26 @@
         this.replaceScript = function(script) {
             script.replaceWith(this._element);
         };
-        this.getScrollHandler = function() {
-            var widget = this;
-            return function() {
-                if (widget._scrolling) { clearTimeout(widget._scrolling); }
-                widget._scrolling = setTimeout(function(){
-                    widget._scrolling = null;
-                }, 100);
-            };
-        };
         this.addMessage = function(status, options) {
             options = options || {};
             var chat = this.createChat(status, options);
-            if (options.animate) {
-                if (options.isUser || !this._scrolling) {
-                    this.scrollToBottom();
-                }
-            }
             this._chatbox.append(chat);
+			if ('animate' in options) {                
+				this.scrollToBottom(options.animate);
+            }            
         };
-        this.scrollToBottom = function() {
+        this.scrollToBottom = function(speed) {
             var box = this._chatbox.get(0);
-            this._chatbox.animate({
+			this._chatbox.animate({
                 scrollTop: box.scrollHeight
-            }, "fast");
+            }, speed);
         };
         this.getAliasHandler = function(script) {
             var widget = this;
             return function(e) {
                 var alias = w.jQuery.trim(widget._composeAlias.val()),
                     user = new User();
-                if (alias.length == 0) {
+                if (alias.length === 0) {
 					alias = widget._composeAlias.attr("placeholder");
 				}
 				if (alias !== user.getAlias()) {
@@ -576,7 +564,9 @@
 		this.hideLoader = function() {
 			var widget = this;
 			widget._loader.stop(true, true).fadeOut("fast", function(){
-				widget._loaderContent.stop(true, true).fadeIn("fast");
+				widget._loaderContent.stop(true, true).fadeIn("fast", function(){
+					widget.scrollToBottom(0);
+				});
 			});
 		};
 		this.showLoader = function() {
@@ -595,7 +585,7 @@
                     // clear placeholders
                     if (!input.hasClass("darbo-placeholder") && message.length > 0) {
                         widget._talkHandler(message, function(status) {
-                            widget.addMessage(status, {isUser:true,animate:true});
+                            widget.addMessage(status, {isUser:true, animate:"fast"});
                             if (input.hasClass("darbo-invalid")) {
 								message = message.substr(message.length + parseInt(input.data("delta"), 10));
 								input.removeClass("darbo-invalid");

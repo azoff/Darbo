@@ -8,17 +8,12 @@ The PubSub transport is different locally vs. production. For some reason, AppEn
 
 TODO
 ====
-- Add French and Spanish locales
-- Switch to data attributes
-- Create a bookmarklet
-- Create a mechanism to support public chatrooms on the destination site
 - Create a mechanism to generate api keys based off of trusted domains
 - Update the activation link to show support link on deactivation
 - Handle API cases for secret deactivation
 - Handle widget cases for deactivation
-- Move tokens to be owned by secret and not by chatroom
-  - Add reset secret option on secret generation link
 - Add trusted domains (based off of HTTP origin) to a CORS header
+- Create a mechanism to support public chatrooms on the destination site
 - Create mechanism to show how to use script loader
 - Clean up/refactor loader
 - Create Mockups
